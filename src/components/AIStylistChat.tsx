@@ -18,11 +18,18 @@ export interface StyleContext {
 const OCCASIONS = ['Casual', 'Work / Office', 'Date Night', 'Wedding', 'Party', 'Travel', 'Interview', 'Gym / Active'] as const;
 const COMFORT_LEVELS = ['Prioritize comfort', 'Balanced', 'Prioritize style'] as const;
 
-interface AIStylistChatProps {
-  wardrobeItems: WardrobeItem[];
+interface BodyProfile {
+  height_cm: number | null;
+  body_type: string | null;
+  skin_tone: string | null;
 }
 
-const AIStylistChat = ({ wardrobeItems }: AIStylistChatProps) => {
+interface AIStylistChatProps {
+  wardrobeItems: WardrobeItem[];
+  bodyProfile?: BodyProfile | null;
+}
+
+const AIStylistChat = ({ wardrobeItems, bodyProfile }: AIStylistChatProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
