@@ -298,7 +298,7 @@ const ProfilePage = () => {
             </div>
             <button
               onClick={() => setShowCreateBoard(true)}
-              className="p-2 rounded-lg bg-secondary text-gold hover:bg-muted transition"
+              className="p-2 rounded-lg bg-secondary text-primary hover:bg-muted transition"
             >
               <FolderPlus size={18} />
             </button>

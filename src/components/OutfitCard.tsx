@@ -56,7 +56,7 @@ const OutfitCard = ({ card, index = 0 }: OutfitCardProps) => {
             >
               <Heart
                 size={16}
-                className={liked ? 'fill-rani text-rani' : 'text-muted-foreground hover:text-rani transition'}
+                className={liked ? 'fill-primary text-primary' : 'text-muted-foreground hover:text-primary transition'}
               />
             </button>
           </div>
