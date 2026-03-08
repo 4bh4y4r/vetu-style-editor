@@ -71,7 +71,6 @@ const ProfilePage = () => {
 
     if (!boardsData) return;
 
-    // Fetch first 4 pins per board for preview
     const boardsWithPins: Board[] = await Promise.all(
       boardsData.map(async (b) => {
         const { data: pins } = await supabase
@@ -107,7 +106,6 @@ const ProfilePage = () => {
     return matchCat && matchSearch;
   });
 
-  // Board detail view
   if (selectedBoard) {
     return (
       <div className="pb-20">
@@ -141,13 +139,17 @@ const ProfilePage = () => {
 
       <div className="flex items-center gap-3 px-4 mt-3 mb-4">
         <img
-          src={profile?.avatar_url || `https://ui-avatars.com/api/?name=${displayName}&background=3B0918&color=FAF8F4`}
+          src={profile?.avatar_url || `https://ui-avatars.com/api/?name=${displayName}&background=1A1A1A&color=D4A843`}
           alt="Profile avatar"
-          className="w-14 h-14 rounded-full object-cover border-2 border-primary"
+          className="w-14 h-14 rounded-full object-cover border-2 border-gold"
         />
         <div>
           <p className="text-sm font-body font-medium text-foreground">{profile?.display_name || displayName}</p>
           <p className="text-xs font-body text-muted-foreground">{profile?.bio || 'Fashion lover ✨'}</p>
+          {/* Style badge */}
+          <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-marigold/15 text-marigold text-[10px] font-body font-semibold">
+            ★ Style Explorer
+          </span>
         </div>
       </div>
 
@@ -161,7 +163,7 @@ const ProfilePage = () => {
               onClick={() => setTab(t.key)}
               className={`flex-1 flex items-center justify-center gap-1.5 pb-2.5 text-sm font-body font-medium transition-colors ${
                 tab === t.key
-                  ? 'text-foreground border-b-2 border-primary'
+                  ? 'text-gold border-b-2 border-gold'
                   : 'text-muted-foreground'
               }`}
             >
@@ -194,7 +196,7 @@ const ProfilePage = () => {
                 value={closetSearch}
                 onChange={e => setClosetSearch(e.target.value)}
                 placeholder="Search closet..."
-                className="w-full pl-9 pr-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary transition"
+                className="w-full pl-9 pr-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-gold transition"
               />
             </div>
             <select
@@ -250,7 +252,6 @@ const ProfilePage = () => {
           />
         </>
       ) : (
-        /* Boards Tab */
         <div className="px-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="flex-1 relative">
@@ -258,12 +259,12 @@ const ProfilePage = () => {
               <input
                 type="text"
                 placeholder="Search boards..."
-                className="w-full pl-9 pr-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary transition"
+                className="w-full pl-9 pr-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-gold transition"
               />
             </div>
             <button
               onClick={() => setShowCreateBoard(true)}
-              className="p-2 rounded-lg bg-secondary text-foreground hover:bg-muted transition"
+              className="p-2 rounded-lg bg-secondary text-gold hover:bg-muted transition"
             >
               <FolderPlus size={18} />
             </button>
@@ -274,7 +275,7 @@ const ProfilePage = () => {
               <button
                 key={board.id}
                 onClick={() => setSelectedBoard(board)}
-                className="rounded-xl overflow-hidden bg-card border border-border text-left hover:border-primary transition"
+                className="rounded-xl overflow-hidden bg-card border border-border text-left hover:border-gold/40 transition"
               >
                 <div className="grid grid-cols-2 gap-0.5 aspect-square">
                   {board.pins.slice(0, 4).map((pin, i) => (

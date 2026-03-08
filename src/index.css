@@ -6,51 +6,60 @@
 
 @layer base {
   :root {
-    --background: 40 33% 97%;
-    --foreground: 36 20% 8%;
+    /* Core palette: Charcoal + Gold + Feroza + Rani */
+    --background: 0 0% 9%;
+    --foreground: 40 20% 92%;
 
-    --card: 40 33% 97%;
-    --card-foreground: 36 20% 8%;
+    --card: 0 0% 14%;
+    --card-foreground: 40 20% 92%;
 
-    --popover: 40 33% 97%;
-    --popover-foreground: 36 20% 8%;
+    --popover: 0 0% 14%;
+    --popover-foreground: 40 20% 92%;
 
-    --primary: 335 65% 16%;
-    --primary-foreground: 40 33% 97%;
+    --primary: 43 90% 55%;
+    --primary-foreground: 0 0% 9%;
 
-    --secondary: 36 14% 90%;
-    --secondary-foreground: 36 20% 8%;
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 40 15% 80%;
 
-    --muted: 36 14% 92%;
-    --muted-foreground: 36 10% 50%;
+    --muted: 0 0% 20%;
+    --muted-foreground: 40 8% 55%;
 
-    --accent: 335 65% 16%;
-    --accent-foreground: 40 33% 97%;
+    --accent: 174 70% 42%;
+    --accent-foreground: 0 0% 9%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 36 14% 88%;
-    --input: 36 14% 88%;
-    --ring: 335 65% 16%;
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
+    --ring: 43 90% 55%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Extended palette tokens */
+    --gold: 43 90% 55%;
+    --gold-light: 43 80% 65%;
+    --saffron: 30 95% 55%;
+    --feroza: 174 70% 42%;
+    --feroza-light: 174 60% 55%;
+    --rani: 330 85% 55%;
+    --rani-light: 330 75% 65%;
+    --purple: 270 60% 50%;
+    --purple-light: 270 50% 62%;
+    --marigold: 45 95% 55%;
+    --marigold-light: 45 85% 65%;
+    --charcoal: 0 0% 14%;
+    --charcoal-deep: 0 0% 9%;
 
-    --gold: 335 65% 16%;
-    --gold-light: 335 45% 30%;
-    --cream: 40 33% 97%;
-    --cream-dark: 40 20% 93%;
-    --ink: 36 20% 8%;
-    --ink-light: 36 10% 40%;
+    --sidebar-background: 0 0% 11%;
+    --sidebar-foreground: 40 15% 80%;
+    --sidebar-primary: 43 90% 55%;
+    --sidebar-primary-foreground: 0 0% 9%;
+    --sidebar-accent: 0 0% 18%;
+    --sidebar-accent-foreground: 40 15% 80%;
+    --sidebar-border: 0 0% 22%;
+    --sidebar-ring: 174 70% 42%;
   }
 }
 
@@ -85,5 +94,13 @@
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  .gradient-ai {
+    background: linear-gradient(135deg, hsl(174 70% 42%), hsl(270 60% 50%));
+  }
+
+  .gradient-ai-soft {
+    background: linear-gradient(135deg, hsl(174 70% 42% / 0.15), hsl(270 60% 50% / 0.15));
   }
 }
