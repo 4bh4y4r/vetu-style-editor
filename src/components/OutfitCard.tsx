@@ -47,7 +47,7 @@ const OutfitCard = ({ card, index = 0 }: OutfitCardProps) => {
               className="flex-shrink-0 p-1"
               aria-label="Save to board"
             >
-              <Bookmark size={16} className="text-muted-foreground hover:text-foreground transition" />
+              <Bookmark size={16} className="text-gold hover:text-gold-light transition" />
             </button>
             <button
               onClick={() => setLiked(!liked)}
@@ -56,7 +56,7 @@ const OutfitCard = ({ card, index = 0 }: OutfitCardProps) => {
             >
               <Heart
                 size={16}
-                className={liked ? 'fill-primary text-primary' : 'text-muted-foreground'}
+                className={liked ? 'fill-rani text-rani' : 'text-muted-foreground hover:text-rani transition'}
               />
             </button>
           </div>
