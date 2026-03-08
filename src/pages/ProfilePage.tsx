@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Image, Shirt, LayoutGrid, Search, Settings, FolderPlus } from 'lucide-react';
+import { Plus, Image, Shirt, LayoutGrid, Search, Settings, FolderPlus, CalendarDays } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { outfitCards } from '@/data/fashion';
@@ -7,6 +7,8 @@ import MasonryGrid from '@/components/MasonryGrid';
 import UploadWardrobeModal from '@/components/UploadWardrobeModal';
 import CreateBoardModal from '@/components/CreateBoardModal';
 import BoardDetail from '@/components/BoardDetail';
+import OutfitCalendar from '@/components/OutfitCalendar';
+import UploadOutfitModal from '@/components/UploadOutfitModal';
 
 interface WardrobeItem {
   id: string;
