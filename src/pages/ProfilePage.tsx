@@ -15,6 +15,8 @@ const ProfilePage = () => {
     displayName,
     wardrobeItems,
     boards,
+    followersCount,
+    followingCount,
     fetchWardrobe,
     fetchBoards,
     createBoard,
