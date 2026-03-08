@@ -110,7 +110,7 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-16 h-16 rounded-full gradient-ai-soft flex items-center justify-center mb-4">
-              <Sparkles size={28} className="text-feroza" />
+              <Sparkles size={28} className="text-accent" />
             </div>
             <h3 className="text-base font-display font-bold text-foreground mb-1">AI Stylist</h3>
             <p className="text-xs font-body text-muted-foreground mb-6 max-w-[240px]">
