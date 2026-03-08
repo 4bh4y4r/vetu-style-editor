@@ -189,7 +189,7 @@ const ProfilePage = () => {
               onClick={() => setTab(t.key)}
               className={`flex-1 flex items-center justify-center gap-1.5 pb-2.5 text-sm font-body font-medium transition-colors ${
                 tab === t.key
-                  ? 'text-gold border-b-2 border-gold'
+                  ? 'text-primary border-b-2 border-primary'
                   : 'text-muted-foreground'
               }`}
             >
