@@ -175,7 +175,7 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && sendMessage(input)}
           placeholder="Ask your AI stylist..."
-          className="flex-1 px-4 py-2.5 rounded-full bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-feroza transition"
+          className="flex-1 px-4 py-2.5 rounded-full bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition"
           disabled={isLoading}
         />
         <button
