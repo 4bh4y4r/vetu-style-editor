@@ -200,7 +200,7 @@ const AIStylistChat = ({ wardrobeItems }: AIStylistChatProps) => {
             if (prompt) sendMessage(`🎨 Generate ${prompt}`);
           }}
           disabled={isBusy}
-          className="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center disabled:opacity-50 transition hover:bg-accent/20 flex-shrink-0"
+          className="w-10 h-10 rounded-full bg-secondary text-foreground flex items-center justify-center disabled:opacity-50 transition hover:bg-muted flex-shrink-0"
           aria-label="Generate outfit image"
         >
           <ImageIcon size={16} />
