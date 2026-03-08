@@ -1,7 +1,6 @@
 import { Plus, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import type { Profile, Board } from '@/types';
-import { outfitCards } from '@/data/fashion';
+import type { Profile } from '@/types';
 
 interface ProfileHeaderProps {
   profile: Profile | null;
