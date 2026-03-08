@@ -145,7 +145,7 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
                 }`}
               >
                 {msg.role === 'assistant' ? (
-                  <div className="prose prose-sm prose-invert max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1">
+                  <div className="prose prose-sm max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1">
                     <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 ) : (
