@@ -15,7 +15,8 @@ const ProfileHeader = ({
   profile,
   displayName,
   wardrobeCount,
-  boardCount,
+  followersCount,
+  followingCount,
   onAddContent,
 }: ProfileHeaderProps) => {
   const { signOut } = useAuth();
