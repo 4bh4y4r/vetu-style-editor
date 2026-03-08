@@ -70,6 +70,36 @@ export type Database = {
         }
         Relationships: []
       }
+      outfit_posts: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          is_public: boolean
+          notes: string | null
+          outfit_date: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          is_public?: boolean
+          notes?: string | null
+          outfit_date: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          is_public?: boolean
+          notes?: string | null
+          outfit_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
