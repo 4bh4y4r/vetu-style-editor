@@ -131,8 +131,8 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
               onClick={() => handleDayClick(day)}
               disabled={future}
               className={`aspect-[2/3] rounded-xl overflow-hidden relative flex flex-col items-center justify-end transition-all
-                ${selected ? 'ring-2 ring-gold ring-offset-1 ring-offset-background' : ''}
-                ${future ? 'opacity-20 cursor-not-allowed' : 'hover:ring-1 hover:ring-gold/40'}
+                ${selected ? 'ring-2 ring-primary ring-offset-1 ring-offset-background' : ''}
+                ${future ? 'opacity-20 cursor-not-allowed' : 'hover:ring-1 hover:ring-primary/40'}
                 ${hasOutfits ? 'shadow-md' : 'bg-card/60 border border-border/50'}
               `}
             >
