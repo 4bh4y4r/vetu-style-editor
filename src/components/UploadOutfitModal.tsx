@@ -127,7 +127,7 @@ const UploadOutfitModal = ({ open, date, onClose, onUploaded }: UploadOutfitModa
         <button
           onClick={handleUpload}
           disabled={!file || uploading}
-          className="w-full py-3 rounded-xl bg-gold text-background font-body font-semibold text-sm disabled:opacity-50 transition hover:brightness-110"
+          className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-body font-semibold text-sm disabled:opacity-50 transition hover:brightness-110"
         >
           {uploading ? 'Saving...' : 'Save Outfit'}
         </button>
