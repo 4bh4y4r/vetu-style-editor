@@ -1,10 +1,10 @@
-import { Home, Search, Bookmark, User } from 'lucide-react';
+import { Home, Search, MessageCircle, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const tabs = [
   { path: '/', icon: Home, label: 'Home' },
-  { path: '/moodboard', icon: Bookmark, label: 'Mood Board' },
   { path: '/search', icon: Search, label: 'Search' },
+  { path: '/ai-stylist', icon: MessageCircle, label: 'AI Stylist' },
   { path: '/profile', icon: User, label: 'Profile' },
 ];
 
