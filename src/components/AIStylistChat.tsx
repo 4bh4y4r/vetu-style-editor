@@ -171,7 +171,7 @@ const AIStylistChat = ({ wardrobeItems }: AIStylistChatProps) => {
   const isBusy = isLoading || isGeneratingImage;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-280px)] px-4">
+    <div className="flex flex-col h-[calc(100vh-240px)] px-3">
       {/* ─── Context panel ──────────────────────────────────── */}
       <ContextPanel
         styleContext={styleContext}
