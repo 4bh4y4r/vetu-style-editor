@@ -31,7 +31,7 @@ interface Board {
 }
 
 const TABS = [
-  { key: 'outfits' as const, label: 'Outfits', icon: Image },
+  { key: 'outfits' as const, label: 'Calendar', icon: CalendarDays },
   { key: 'closet' as const, label: 'Closet', icon: Shirt },
   { key: 'boards' as const, label: 'Boards', icon: LayoutGrid },
 ];
