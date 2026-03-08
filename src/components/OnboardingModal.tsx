@@ -83,7 +83,7 @@ const OnboardingModal = ({ open, onComplete }: OnboardingModalProps) => {
   const CurrentIcon = steps[step].icon;
 
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col">
+    <div className="fixed inset-0 z-[9999] bg-background flex flex-col" style={{ isolation: 'isolate' }}>
       {/* Progress bar */}
       <div className="flex gap-1.5 px-6 pt-6">
         {steps.map((_, i) => (
