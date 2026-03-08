@@ -14,7 +14,7 @@ const HomePage = () => {
     <div className="pb-20">
       {/* Top Bar */}
       <div className="flex items-center justify-between px-4 pt-4 pb-3">
-        <h1 className="text-2xl font-display font-bold tracking-tight text-primary">VÊTU</h1>
+        <h1 className="text-2xl font-display font-bold tracking-tight text-primary">DRIP</h1>
         <button className="p-2 text-foreground" aria-label="Notifications">
           <Bell size={22} strokeWidth={1.6} />
         </button>
