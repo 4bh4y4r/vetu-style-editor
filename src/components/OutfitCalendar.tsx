@@ -24,7 +24,6 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [outfits, setOutfits] = useState<OutfitPost[]>([]);
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
-  const [selectedOutfit, setSelectedOutfit] = useState<OutfitPost | null>(null);
 
   useEffect(() => {
     fetchOutfits();
@@ -40,7 +39,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
       .eq('user_id', user.id)
       .gte('outfit_date', start)
       .lte('outfit_date', end)
-      .order('outfit_date', { ascending: true });
+      .order('created_at', { ascending: false });
     if (data) setOutfits(data as OutfitPost[]);
   };
 
@@ -49,52 +48,41 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
     end: endOfMonth(currentMonth),
   });
 
-  // Monday-based: getDay returns 0=Sun, so shift
   const firstDayOffset = (getDay(startOfMonth(currentMonth)) + 6) % 7;
 
-  const getOutfitForDay = (date: Date) => {
+  const getOutfitsForDay = (date: Date): OutfitPost[] => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    return outfits.find(o => o.outfit_date === dateStr);
+    return outfits.filter(o => o.outfit_date === dateStr);
   };
 
   const handleDayClick = (date: Date) => {
     if (isFuture(date)) return;
-    const outfit = getOutfitForDay(date);
-    if (outfit) {
-      setSelectedOutfit(outfit);
-      setSelectedDay(date);
-    } else {
-      setSelectedDay(date);
-      setSelectedOutfit(null);
-    }
+    setSelectedDay(selectedDay && isSameDay(selectedDay, date) ? null : date);
   };
 
-  const handleToggleVisibility = async () => {
-    if (!selectedOutfit) return;
+  const handleToggleVisibility = async (outfit: OutfitPost) => {
     const { error } = await supabase
       .from('outfit_posts')
-      .update({ is_public: !selectedOutfit.is_public })
-      .eq('id', selectedOutfit.id);
+      .update({ is_public: !outfit.is_public })
+      .eq('id', outfit.id);
     if (!error) {
-      toast.success(selectedOutfit.is_public ? 'Outfit set to private' : 'Outfit set to public');
-      setSelectedOutfit({ ...selectedOutfit, is_public: !selectedOutfit.is_public });
+      toast.success(outfit.is_public ? 'Set to private' : 'Shared publicly!');
       fetchOutfits();
     }
   };
 
-  const handleDelete = async () => {
-    if (!selectedOutfit) return;
+  const handleDelete = async (outfitId: string) => {
     const { error } = await supabase
       .from('outfit_posts')
       .delete()
-      .eq('id', selectedOutfit.id);
+      .eq('id', outfitId);
     if (!error) {
       toast.success('Outfit removed');
-      setSelectedOutfit(null);
-      setSelectedDay(null);
       fetchOutfits();
     }
   };
+
+  const selectedDayOutfits = selectedDay ? getOutfitsForDay(selectedDay) : [];
 
   return (
     <div className="px-4">
@@ -126,7 +114,8 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
           <div key={`pad-${i}`} className="aspect-square" />
         ))}
         {days.map(day => {
-          const outfit = getOutfitForDay(day);
+          const dayOutfits = getOutfitsForDay(day);
+          const hasOutfits = dayOutfits.length > 0;
           const today = isToday(day);
           const future = isFuture(day);
           const selected = selectedDay && isSameDay(day, selectedDay);
@@ -138,18 +127,20 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
               disabled={future}
               className={`aspect-square rounded-lg overflow-hidden relative flex items-center justify-center text-xs font-body transition-all border-2
                 ${selected ? 'border-gold' : 'border-transparent'}
-                ${today && !outfit ? 'ring-1 ring-gold/50' : ''}
+                ${today && !hasOutfits ? 'ring-1 ring-gold/50' : ''}
                 ${future ? 'opacity-30 cursor-not-allowed' : 'hover:border-gold/30'}
-                ${outfit ? '' : 'bg-secondary/50'}
+                ${hasOutfits ? '' : 'bg-secondary/50'}
               `}
             >
-              {outfit ? (
+              {hasOutfits ? (
                 <>
-                  <img src={outfit.image_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/20" />
+                  <img src={dayOutfits[0].image_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/25" />
                   <span className="relative text-white font-semibold text-[11px] drop-shadow">{format(day, 'd')}</span>
-                  {!outfit.is_public && (
-                    <EyeOff size={8} className="absolute top-0.5 right-0.5 text-white/70" />
+                  {dayOutfits.length > 1 && (
+                    <span className="absolute top-0.5 right-0.5 bg-gold text-background text-[8px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">
+                      {dayOutfits.length}
+                    </span>
                   )}
                 </>
               ) : (
@@ -165,52 +156,54 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
       {/* Selected day detail */}
       {selectedDay && (
         <div className="mt-4 rounded-xl bg-card border border-border p-3 animate-fade-in">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-body font-semibold text-foreground">
               {format(selectedDay, 'EEEE, MMM d')}
             </p>
-            {!selectedOutfit && !isFuture(selectedDay) && (
+            {!isFuture(selectedDay) && (
               <button
                 onClick={() => onAddOutfit(selectedDay)}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gold/15 text-gold text-xs font-body font-semibold hover:bg-gold/25 transition"
               >
-                <Plus size={14} /> Add Outfit
+                <Plus size={14} /> Add Photo
               </button>
             )}
           </div>
 
-          {selectedOutfit ? (
-            <div>
-              <div className="rounded-lg overflow-hidden aspect-[3/4] max-h-64 mb-2">
-                <img src={selectedOutfit.image_url} alt="Outfit" className="w-full h-full object-cover" />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  {selectedOutfit.is_public ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-feroza/15 text-feroza text-[10px] font-body font-semibold">
-                      <Eye size={10} /> Public
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-body font-semibold">
-                      <EyeOff size={10} /> Private
-                    </span>
-                  )}
-                  {selectedOutfit.notes && (
-                    <p className="text-xs font-body text-muted-foreground truncate max-w-[140px]">{selectedOutfit.notes}</p>
+          {selectedDayOutfits.length > 0 ? (
+            <div className="grid grid-cols-2 gap-2">
+              {selectedDayOutfits.map(outfit => (
+                <div key={outfit.id} className="rounded-lg overflow-hidden bg-secondary/30 animate-fade-in">
+                  <div className="aspect-[3/4] overflow-hidden relative">
+                    <img src={outfit.image_url} alt="Outfit" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="p-2 flex items-center justify-between">
+                    <button
+                      onClick={() => handleToggleVisibility(outfit)}
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-body font-semibold transition ${
+                        outfit.is_public
+                          ? 'bg-feroza/15 text-feroza'
+                          : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      {outfit.is_public ? <Eye size={10} /> : <EyeOff size={10} />}
+                      {outfit.is_public ? 'Public' : 'Private'}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(outfit.id)}
+                      className="p-1 rounded-lg hover:bg-rani/10 transition text-muted-foreground hover:text-rani"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                  {outfit.notes && (
+                    <p className="px-2 pb-2 text-[10px] font-body text-muted-foreground truncate">{outfit.notes}</p>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={handleToggleVisibility} className="p-1.5 rounded-lg hover:bg-secondary transition text-muted-foreground hover:text-foreground">
-                    {selectedOutfit.is_public ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                  <button onClick={handleDelete} className="p-1.5 rounded-lg hover:bg-rani/10 transition text-muted-foreground hover:text-rani">
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
+              ))}
             </div>
           ) : (
-            <p className="text-xs font-body text-muted-foreground">No outfit logged for this day</p>
+            <p className="text-xs font-body text-muted-foreground">No outfits logged. Tap "Add Photo" to get started.</p>
           )}
         </div>
       )}
