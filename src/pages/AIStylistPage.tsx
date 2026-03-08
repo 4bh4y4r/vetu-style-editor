@@ -22,11 +22,9 @@ const AIStylistPage = () => {
 
   return (
     <div className="pb-20">
-      <div className="px-4 pt-5 pb-3">
-        <h1 className="text-2xl font-display font-bold text-foreground">
-          <span className="gradient-ai bg-clip-text text-transparent">AI Stylist</span>
-        </h1>
-        <p className="text-sm font-body text-muted-foreground mt-0.5">
+      <div className="px-4 pt-4 pb-2">
+        <h1 className="text-xl font-display font-bold text-foreground">AI Stylist</h1>
+        <p className="text-xs font-body text-muted-foreground mt-0.5">
           Your personal fashion assistant
         </p>
       </div>

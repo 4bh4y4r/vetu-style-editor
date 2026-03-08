@@ -171,7 +171,7 @@ const AIStylistChat = ({ wardrobeItems }: AIStylistChatProps) => {
   const isBusy = isLoading || isGeneratingImage;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-280px)] px-4">
+    <div className="flex flex-col h-[calc(100vh-240px)] px-3">
       {/* ─── Context panel ──────────────────────────────────── */}
       <ContextPanel
         styleContext={styleContext}
@@ -200,7 +200,7 @@ const AIStylistChat = ({ wardrobeItems }: AIStylistChatProps) => {
             if (prompt) sendMessage(`🎨 Generate ${prompt}`);
           }}
           disabled={isBusy}
-          className="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center disabled:opacity-50 transition hover:bg-accent/20 flex-shrink-0"
+          className="w-10 h-10 rounded-full bg-secondary text-foreground flex items-center justify-center disabled:opacity-50 transition hover:bg-muted flex-shrink-0"
           aria-label="Generate outfit image"
         >
           <ImageIcon size={16} />
@@ -217,7 +217,7 @@ const AIStylistChat = ({ wardrobeItems }: AIStylistChatProps) => {
         <button
           onClick={() => sendMessage(input)}
           disabled={!input.trim() || isBusy}
-          className="w-10 h-10 rounded-full gradient-ai text-accent-foreground flex items-center justify-center disabled:opacity-50 transition hover:opacity-90"
+          className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-50 transition hover:opacity-90"
         >
           <Send size={16} />
         </button>
@@ -357,9 +357,9 @@ const EmptyState = ({
   wardrobeCount: number;
   onSend: (text: string) => void;
 }) => (
-  <div className="flex flex-col items-center justify-center h-full text-center">
-    <div className="w-16 h-16 rounded-full gradient-ai-soft flex items-center justify-center mb-4">
-      <Sparkles size={28} className="text-accent" />
+  <div className="flex flex-col items-center justify-center h-full text-center px-2">
+    <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center mb-3">
+      <Sparkles size={24} className="text-foreground" />
     </div>
     <h3 className="text-base font-display font-bold text-foreground mb-1">AI Stylist</h3>
     <p className="text-xs font-body text-muted-foreground mb-4 max-w-[240px]">
@@ -380,12 +380,12 @@ const EmptyState = ({
     </div>
 
     <SectionLabel>Generate an image</SectionLabel>
-    <div className="flex flex-wrap gap-2 justify-center max-w-sm">
+    <div className="flex flex-wrap gap-1.5 justify-center max-w-sm">
       {AI_IMAGE_PROMPTS.map((p) => (
         <button
           key={p}
           onClick={() => onSend(p)}
-          className="px-3 py-2 rounded-full bg-accent/10 text-accent text-xs font-body hover:bg-accent/20 transition border border-accent/20"
+          className="px-3 py-2 rounded-full bg-secondary text-foreground text-xs font-body hover:bg-muted transition border border-border"
         >
           {p}
         </button>
