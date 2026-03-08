@@ -121,11 +121,9 @@ const ProfilePage = () => {
 
   return (
     <div className="pb-20">
-      {/* Profile Header */}
-      <div className="flex items-start justify-between px-4 pt-5">
-        <div>
-          <h1 className="text-lg font-display font-bold text-foreground">@{displayName}</h1>
-        </div>
+      {/* Profile Header - Instagram Style */}
+      <div className="flex items-center justify-between px-4 pt-5 mb-4">
+        <h1 className="text-lg font-display font-bold text-foreground">@{displayName}</h1>
         <div className="flex items-center gap-3">
           <button
             onClick={signOut}
@@ -137,20 +135,47 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 px-4 mt-3 mb-4">
-        <img
-          src={profile?.avatar_url || `https://ui-avatars.com/api/?name=${displayName}&background=1A1A1A&color=D4A843`}
-          alt="Profile avatar"
-          className="w-14 h-14 rounded-full object-cover border-2 border-gold"
-        />
-        <div>
-          <p className="text-sm font-body font-medium text-foreground">{profile?.display_name || displayName}</p>
-          <p className="text-xs font-body text-muted-foreground">{profile?.bio || 'Fashion lover ✨'}</p>
-          {/* Style badge */}
-          <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-marigold/15 text-marigold text-[10px] font-body font-semibold">
-            ★ Style Explorer
-          </span>
+      <div className="flex items-center gap-5 px-4 mb-2">
+        {/* Avatar with + button */}
+        <div className="relative flex-shrink-0">
+          <img
+            src={profile?.avatar_url || `https://ui-avatars.com/api/?name=${displayName}&background=1A1A1A&color=D4A843`}
+            alt="Profile avatar"
+            className="w-20 h-20 rounded-full object-cover border-2 border-gold"
+          />
+          <button
+            onClick={() => setShowUpload(true)}
+            className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-feroza text-white flex items-center justify-center border-2 border-background text-xs font-bold"
+            aria-label="Add content"
+          >
+            <Plus size={14} />
+          </button>
         </div>
+
+        {/* Stats */}
+        <div className="flex flex-1 justify-around">
+          <div className="text-center">
+            <p className="text-lg font-display font-bold text-foreground">{outfitCards.slice(0, 6).length}</p>
+            <p className="text-xs font-body text-muted-foreground">posts</p>
+          </div>
+          <div className="text-center">
+            <p className="text-lg font-display font-bold text-foreground">{wardrobeItems.length}</p>
+            <p className="text-xs font-body text-muted-foreground">items</p>
+          </div>
+          <div className="text-center">
+            <p className="text-lg font-display font-bold text-foreground">{boards.length}</p>
+            <p className="text-xs font-body text-muted-foreground">boards</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Name, bio, badge */}
+      <div className="px-4 mb-4">
+        <p className="text-sm font-body font-semibold text-foreground">{profile?.display_name || displayName}</p>
+        <p className="text-xs font-body text-muted-foreground mt-0.5">{profile?.bio || 'Fashion lover ✨'}</p>
+        <span className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-marigold/15 text-marigold text-[10px] font-body font-semibold">
+          ★ Style Explorer
+        </span>
       </div>
 
       {/* Tabs */}
