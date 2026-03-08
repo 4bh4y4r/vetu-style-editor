@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, Bookmark } from 'lucide-react';
 import { OutfitCard as OutfitCardType } from '@/data/fashion';
+import SaveToBoardModal from './SaveToBoardModal';
 
 const heightMap = {
   tall: 'h-72',
@@ -15,41 +16,60 @@ interface OutfitCardProps {
 
 const OutfitCard = ({ card, index = 0 }: OutfitCardProps) => {
   const [liked, setLiked] = useState(card.liked);
+  const [showSave, setShowSave] = useState(false);
 
   return (
-    <div
-      className="masonry-item animate-fade-in rounded-lg overflow-hidden bg-card"
-      style={{ animationDelay: `${index * 60}ms` }}
-    >
-      <div className={`${heightMap[card.height]} w-full overflow-hidden`}>
-        <img
-          src={card.imageUrl}
-          alt={`Outfit by ${card.username}`}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
-      </div>
-      <div className="flex items-center justify-between px-2.5 py-2">
-        <div className="flex items-center gap-2 min-w-0">
+    <>
+      <div
+        className="masonry-item animate-fade-in rounded-lg overflow-hidden bg-card"
+        style={{ animationDelay: `${index * 60}ms` }}
+      >
+        <div className={`${heightMap[card.height]} w-full overflow-hidden`}>
           <img
-            src={card.avatarUrl}
-            alt={card.username}
-            className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+            src={card.imageUrl}
+            alt={`Outfit by ${card.username}`}
+            className="w-full h-full object-cover"
+            loading="lazy"
           />
-          <span className="text-xs font-body text-ink-light truncate">{card.username}</span>
         </div>
-        <button
-          onClick={() => setLiked(!liked)}
-          className="flex-shrink-0 p-1"
-          aria-label={liked ? 'Unlike' : 'Like'}
-        >
-          <Heart
-            size={16}
-            className={liked ? 'fill-primary text-primary' : 'text-ink-light'}
-          />
-        </button>
+        <div className="flex items-center justify-between px-2.5 py-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <img
+              src={card.avatarUrl}
+              alt={card.username}
+              className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+            />
+            <span className="text-xs font-body text-muted-foreground truncate">{card.username}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setShowSave(true)}
+              className="flex-shrink-0 p-1"
+              aria-label="Save to board"
+            >
+              <Bookmark size={16} className="text-muted-foreground hover:text-foreground transition" />
+            </button>
+            <button
+              onClick={() => setLiked(!liked)}
+              className="flex-shrink-0 p-1"
+              aria-label={liked ? 'Unlike' : 'Like'}
+            >
+              <Heart
+                size={16}
+                className={liked ? 'fill-primary text-primary' : 'text-muted-foreground'}
+              />
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <SaveToBoardModal
+        open={showSave}
+        imageUrl={card.imageUrl}
+        title={`Outfit by ${card.username}`}
+        onClose={() => setShowSave(false)}
+      />
+    </>
   );
 };
 
