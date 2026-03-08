@@ -189,7 +189,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
             {!isFuture(selectedDay) && (
               <button
                 onClick={() => onAddOutfit(selectedDay)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold text-background text-xs font-body font-semibold hover:brightness-110 transition shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-body font-semibold hover:brightness-110 transition shadow-sm"
               >
                 <Plus size={13} /> Add
               </button>
