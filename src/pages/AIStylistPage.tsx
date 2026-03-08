@@ -4,9 +4,16 @@ import { supabase } from '@/integrations/supabase/client';
 import AIStylistChat from '@/components/AIStylistChat';
 import type { WardrobeItem } from '@/types';
 
+interface BodyProfile {
+  height_cm: number | null;
+  body_type: string | null;
+  skin_tone: string | null;
+}
+
 const AIStylistPage = () => {
   const { user } = useAuth();
   const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([]);
+  const [bodyProfile, setBodyProfile] = useState<BodyProfile | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -18,6 +25,15 @@ const AIStylistPage = () => {
       .then(({ data }) => {
         if (data) setWardrobeItems(data);
       });
+
+    supabase
+      .from('profiles')
+      .select('height_cm, body_type, skin_tone')
+      .eq('user_id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setBodyProfile(data);
+      });
   }, [user]);
 
   return (
@@ -28,7 +44,7 @@ const AIStylistPage = () => {
           Your personal fashion assistant
         </p>
       </div>
-      <AIStylistChat wardrobeItems={wardrobeItems} />
+      <AIStylistChat wardrobeItems={wardrobeItems} bodyProfile={bodyProfile} />
     </div>
   );
 };

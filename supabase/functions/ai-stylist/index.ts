@@ -44,7 +44,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, wardrobeItems, styleContext } = await req.json();
+    const { messages, wardrobeItems, styleContext, bodyProfile } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -52,6 +52,16 @@ serve(async (req) => {
     const wardrobeContext = wardrobeItems?.length
       ? `\n\nThe user's closet contains these items:\n${wardrobeItems.map((item: any) => `- ${item.category}${item.name ? `: ${item.name}` : ''}`).join('\n')}`
       : "\n\nThe user's closet is currently empty.";
+
+    // ─── Build body profile context ──────────────────────────
+    let bodyContext = "";
+    if (bodyProfile) {
+      const parts: string[] = [];
+      if (bodyProfile.height_cm) parts.push(`Height: ${bodyProfile.height_cm}cm`);
+      if (bodyProfile.body_type) parts.push(`Body type: ${bodyProfile.body_type}`);
+      if (bodyProfile.skin_tone) parts.push(`Skin tone: ${bodyProfile.skin_tone}`);
+      if (parts.length) bodyContext = `\n\nUser's body profile:\n${parts.join('\n')}`;
+    }
 
     // ─── Build style context ─────────────────────────────────
     let weatherInfo = "";
@@ -71,19 +81,20 @@ serve(async (req) => {
 
     const systemPrompt = `You are a personal AI fashion stylist. You help users with outfit suggestions, styling advice, and fashion tips. You're trendy, supportive, and knowledgeable about fashion.
 
-IMPORTANT: You MUST factor in the following when giving advice:
-1. **Climate & Weather**: Check the weather data provided and recommend fabrics, layers, and accessories accordingly. If it's hot, suggest breathable fabrics. If rainy, suggest waterproof options. If cold, recommend layering.
-2. **Occasion & Event**: Tailor formality, colors, and silhouettes to match the event (e.g., business formal for interviews, relaxed for brunches).
-3. **Comfort vs Style**: Respect the user's comfort preference. If they prioritize comfort, suggest softer fabrics, relaxed fits, and easy shoes. If style-focused, push bolder choices.
-4. **Practical factors**: Consider walking requirements, indoor/outdoor settings, time of day, and cultural context of the location.
+IMPORTANT: You MUST factor in ALL of the following when giving advice:
+1. **Body Profile**: Use the user's height, body type, and skin tone to recommend flattering cuts, proportions, and colors. For example, suggest colors that complement their skin tone, silhouettes that flatter their body type, and proportions suited to their height.
+2. **Climate & Weather**: Check the weather data provided and recommend fabrics, layers, and accessories accordingly.
+3. **Occasion & Event**: Tailor formality, colors, and silhouettes to match the event.
+4. **Comfort vs Style**: Respect the user's comfort preference.
+5. **Practical factors**: Consider walking requirements, indoor/outdoor settings, time of day, and cultural context.
 
-Always explain WHY you're recommending something based on these factors (e.g., "Since it's 34°C and humid in Mumbai, I'd suggest...").
+Always explain WHY you're recommending something based on these factors.
 
 Additional guidelines:
 - Use the user's existing wardrobe items when possible
 - Suggest color coordination and pattern mixing
 - Keep responses concise, friendly, and actionable
-- Use emojis sparingly for personality${wardrobeContext}${weatherInfo}${contextBlock}`;
+- Use emojis sparingly for personality${wardrobeContext}${bodyContext}${weatherInfo}${contextBlock}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

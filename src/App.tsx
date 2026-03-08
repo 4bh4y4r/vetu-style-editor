@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import HomePage from "./pages/HomePage";
 import SearchPage from "./pages/SearchPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -15,14 +17,40 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 import BottomNav from "./components/BottomNav";
+import OnboardingModal from "./components/OnboardingModal";
 
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div className="min-h-screen bg-background" />;
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    if (!user) { setChecking(false); return; }
+    supabase
+      .from('profiles')
+      .select('onboarding_complete')
+      .eq('user_id', user.id)
+      .single()
+      .then(({ data }) => {
+        setNeedsOnboarding(data ? !data.onboarding_complete : true);
+        setChecking(false);
+      });
+  }, [user]);
+
+  if (loading || checking) return <div className="min-h-screen bg-background" />;
   if (!user) return <Navigate to="/login" replace />;
-  return <>{children}</>;
+
+  return (
+    <>
+      <OnboardingModal
+        open={needsOnboarding}
+        onComplete={() => setNeedsOnboarding(false)}
+      />
+      {children}
+    </>
+  );
 };
 
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
