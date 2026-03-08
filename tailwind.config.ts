@@ -78,6 +78,18 @@ export default {
           DEFAULT: "hsl(var(--charcoal))",
           deep: "hsl(var(--charcoal-deep))",
         },
+        blush: {
+          DEFAULT: "hsl(var(--blush))",
+        },
+        peach: {
+          DEFAULT: "hsl(var(--peach))",
+        },
+        mint: {
+          DEFAULT: "hsl(var(--mint))",
+        },
+        lavender: {
+          DEFAULT: "hsl(var(--lavender))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

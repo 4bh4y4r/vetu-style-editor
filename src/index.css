@@ -6,60 +6,64 @@
 
 @layer base {
   :root {
-    /* Core palette: Charcoal + Gold + Feroza + Rani */
-    --background: 0 0% 9%;
-    --foreground: 40 20% 92%;
+    /* Light & playful fashion palette */
+    --background: 30 30% 97%;
+    --foreground: 20 20% 15%;
 
-    --card: 0 0% 14%;
-    --card-foreground: 40 20% 92%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 20% 15%;
 
-    --popover: 0 0% 14%;
-    --popover-foreground: 40 20% 92%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 20% 15%;
 
-    --primary: 43 90% 55%;
-    --primary-foreground: 0 0% 9%;
+    --primary: 340 65% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 18%;
-    --secondary-foreground: 40 15% 80%;
+    --secondary: 30 25% 93%;
+    --secondary-foreground: 20 15% 40%;
 
-    --muted: 0 0% 20%;
-    --muted-foreground: 40 8% 55%;
+    --muted: 30 15% 90%;
+    --muted-foreground: 20 10% 50%;
 
-    --accent: 174 70% 42%;
-    --accent-foreground: 0 0% 9%;
+    --accent: 260 50% 62%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 22%;
-    --input: 0 0% 22%;
-    --ring: 43 90% 55%;
+    --border: 30 15% 88%;
+    --input: 30 15% 88%;
+    --ring: 340 65% 58%;
 
     --radius: 0.75rem;
 
-    /* Extended palette tokens */
-    --gold: 43 90% 55%;
-    --gold-light: 43 80% 65%;
-    --saffron: 30 95% 55%;
-    --feroza: 174 70% 42%;
-    --feroza-light: 174 60% 55%;
-    --rani: 330 85% 55%;
-    --rani-light: 330 75% 65%;
-    --purple: 270 60% 50%;
-    --purple-light: 270 50% 62%;
-    --marigold: 45 95% 55%;
-    --marigold-light: 45 85% 65%;
-    --charcoal: 0 0% 14%;
-    --charcoal-deep: 0 0% 9%;
+    /* Fun fashion tokens */
+    --gold: 38 75% 55%;
+    --gold-light: 38 65% 70%;
+    --saffron: 25 85% 58%;
+    --feroza: 174 55% 45%;
+    --feroza-light: 174 45% 60%;
+    --rani: 340 65% 58%;
+    --rani-light: 340 55% 72%;
+    --purple: 260 50% 62%;
+    --purple-light: 260 40% 75%;
+    --marigold: 42 85% 58%;
+    --marigold-light: 42 75% 72%;
+    --charcoal: 20 10% 25%;
+    --charcoal-deep: 20 15% 15%;
+    --blush: 350 45% 92%;
+    --peach: 20 70% 88%;
+    --mint: 160 35% 88%;
+    --lavender: 260 35% 90%;
 
-    --sidebar-background: 0 0% 11%;
-    --sidebar-foreground: 40 15% 80%;
-    --sidebar-primary: 43 90% 55%;
-    --sidebar-primary-foreground: 0 0% 9%;
-    --sidebar-accent: 0 0% 18%;
-    --sidebar-accent-foreground: 40 15% 80%;
-    --sidebar-border: 0 0% 22%;
-    --sidebar-ring: 174 70% 42%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 20 15% 40%;
+    --sidebar-primary: 340 65% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 30 25% 93%;
+    --sidebar-accent-foreground: 20 15% 40%;
+    --sidebar-border: 30 15% 88%;
+    --sidebar-ring: 340 65% 58%;
   }
 }
 
@@ -97,10 +101,14 @@
   }
 
   .gradient-ai {
-    background: linear-gradient(135deg, hsl(174 70% 42%), hsl(270 60% 50%));
+    background: linear-gradient(135deg, hsl(260 50% 62%), hsl(340 65% 58%));
   }
 
   .gradient-ai-soft {
-    background: linear-gradient(135deg, hsl(174 70% 42% / 0.15), hsl(270 60% 50% / 0.15));
+    background: linear-gradient(135deg, hsl(260 50% 62% / 0.12), hsl(340 65% 58% / 0.12));
+  }
+
+  .gradient-fun {
+    background: linear-gradient(135deg, hsl(350 45% 92%), hsl(260 35% 90%), hsl(160 35% 88%));
   }
 }
