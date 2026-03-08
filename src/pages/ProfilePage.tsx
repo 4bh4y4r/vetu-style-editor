@@ -47,6 +47,9 @@ const ProfilePage = () => {
   const [boards, setBoards] = useState<Board[]>([]);
   const [showCreateBoard, setShowCreateBoard] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<Board | null>(null);
+  const [outfitDate, setOutfitDate] = useState<Date | null>(null);
+  const [showOutfitUpload, setShowOutfitUpload] = useState(false);
+  const [calendarKey, setCalendarKey] = useState(0);
 
   useEffect(() => {
     if (!user) return;
