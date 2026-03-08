@@ -133,7 +133,7 @@ const AIStylistChat = ({ wardrobeItems, bodyProfile }: AIStylistChatProps) => {
             .map((m) => ({ role: m.role, content: m.content })),
           wardrobeItems: wardrobeItems.map((i) => ({ category: i.category, name: i.name })),
           styleContext,
-        }),
+          bodyProfile: bodyProfile || undefined,
       });
 
       if (!resp.ok) {
