@@ -55,9 +55,9 @@ const ProfileHeader = ({
         </div>
 
         <div className="flex flex-1 justify-around">
-          <Stat count={outfitCards.slice(0, 6).length} label="posts" />
           <Stat count={wardrobeCount} label="items" />
-          <Stat count={boardCount} label="boards" />
+          <Stat count={128} label="followers" />
+          <Stat count={96} label="following" />
         </div>
       </div>
 
