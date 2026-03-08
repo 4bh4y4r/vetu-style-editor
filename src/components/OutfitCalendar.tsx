@@ -207,7 +207,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
                     <div className="absolute top-2 left-2">
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-body font-semibold backdrop-blur-md ${
                         outfit.is_public
-                          ? 'bg-feroza/20 text-white border border-feroza/30'
+                          ? 'bg-primary/20 text-white border border-primary/30'
                           : 'bg-black/30 text-white/70 border border-white/10'
                       }`}>
                         {outfit.is_public ? <Eye size={9} /> : <EyeOff size={9} />}
