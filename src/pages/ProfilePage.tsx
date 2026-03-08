@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase';
 import { outfitCards } from '@/data/fashion';
 import MasonryGrid from '@/components/MasonryGrid';
 import UploadWardrobeModal from '@/components/UploadWardrobeModal';
+import CreateBoardModal from '@/components/CreateBoardModal';
+import BoardDetail from '@/components/BoardDetail';
 
 interface WardrobeItem {
   id: string;
@@ -23,31 +25,13 @@ interface Profile {
 interface Board {
   id: string;
   name: string;
-  pins: { imageUrl: string }[];
+  pins: { image_url: string }[];
 }
 
 const TABS = [
   { key: 'outfits' as const, label: 'Outfits', icon: Image },
   { key: 'closet' as const, label: 'Closet', icon: Shirt },
   { key: 'boards' as const, label: 'Boards', icon: LayoutGrid },
-];
-
-const defaultBoards: Board[] = [
-  {
-    id: 'b1',
-    name: 'Streetwear Inspo',
-    pins: outfitCards.filter(c => c.category === 'Streetwear').map(c => ({ imageUrl: c.imageUrl })),
-  },
-  {
-    id: 'b2',
-    name: 'Minimal Looks',
-    pins: outfitCards.filter(c => c.category === 'Minimal').map(c => ({ imageUrl: c.imageUrl })),
-  },
-  {
-    id: 'b3',
-    name: 'Date Night',
-    pins: outfitCards.filter(c => c.category === 'Formal').map(c => ({ imageUrl: c.imageUrl })),
-  },
 ];
 
 const ProfilePage = () => {
@@ -58,13 +42,16 @@ const ProfilePage = () => {
   const [showUpload, setShowUpload] = useState(false);
   const [closetFilter, setClosetFilter] = useState('All');
   const [closetSearch, setClosetSearch] = useState('');
-  const [boards] = useState<Board[]>(defaultBoards);
+  const [boards, setBoards] = useState<Board[]>([]);
+  const [showCreateBoard, setShowCreateBoard] = useState(false);
+  const [selectedBoard, setSelectedBoard] = useState<Board | null>(null);
 
   useEffect(() => {
     if (!user) return;
     supabase.from('profiles').select('*').eq('user_id', user.id).single()
       .then(({ data }) => { if (data) setProfile(data); });
     fetchWardrobe();
+    fetchBoards();
   }, [user]);
 
   const fetchWardrobe = async () => {
@@ -72,6 +59,43 @@ const ProfilePage = () => {
     const { data } = await supabase.from('wardrobe_items')
       .select('*').eq('user_id', user.id).order('created_at', { ascending: false });
     if (data) setWardrobeItems(data);
+  };
+
+  const fetchBoards = async () => {
+    if (!user) return;
+    const { data: boardsData } = await supabase
+      .from('boards')
+      .select('id, name')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (!boardsData) return;
+
+    // Fetch first 4 pins per board for preview
+    const boardsWithPins: Board[] = await Promise.all(
+      boardsData.map(async (b) => {
+        const { data: pins } = await supabase
+          .from('board_pins')
+          .select('image_url')
+          .eq('board_id', b.id)
+          .order('created_at', { ascending: false })
+          .limit(4);
+        return { ...b, pins: pins || [] };
+      })
+    );
+    setBoards(boardsWithPins);
+  };
+
+  const handleCreateBoard = async (name: string) => {
+    if (!user) return;
+    await supabase.from('boards').insert({ user_id: user.id, name });
+    fetchBoards();
+  };
+
+  const handleDeleteBoard = async (boardId: string) => {
+    await supabase.from('boards').delete().eq('id', boardId);
+    setSelectedBoard(null);
+    fetchBoards();
   };
 
   const displayName = profile?.username || user?.email?.split('@')[0] || 'user';
@@ -82,6 +106,20 @@ const ProfilePage = () => {
     const matchSearch = !closetSearch || item.name?.toLowerCase().includes(closetSearch.toLowerCase()) || item.category.toLowerCase().includes(closetSearch.toLowerCase());
     return matchCat && matchSearch;
   });
+
+  // Board detail view
+  if (selectedBoard) {
+    return (
+      <div className="pb-20">
+        <BoardDetail
+          boardId={selectedBoard.id}
+          boardName={selectedBoard.name}
+          onBack={() => { setSelectedBoard(null); fetchBoards(); }}
+          onDeleteBoard={() => handleDeleteBoard(selectedBoard.id)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="pb-20">
@@ -148,7 +186,6 @@ const ProfilePage = () => {
         </>
       ) : tab === 'closet' ? (
         <>
-          {/* Search & Filter */}
           <div className="flex items-center gap-2 px-4 mb-3">
             <div className="flex-1 relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -213,7 +250,7 @@ const ProfilePage = () => {
           />
         </>
       ) : (
-        /* Boards Tab - Pinterest-style boards */
+        /* Boards Tab */
         <div className="px-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="flex-1 relative">
@@ -224,24 +261,25 @@ const ProfilePage = () => {
                 className="w-full pl-9 pr-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary transition"
               />
             </div>
-            <button className="p-2 rounded-lg bg-secondary text-foreground hover:bg-muted transition">
+            <button
+              onClick={() => setShowCreateBoard(true)}
+              className="p-2 rounded-lg bg-secondary text-foreground hover:bg-muted transition"
+            >
               <FolderPlus size={18} />
             </button>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             {boards.map(board => (
-              <div key={board.id} className="rounded-xl overflow-hidden bg-card border border-border">
-                {/* Board preview grid */}
+              <button
+                key={board.id}
+                onClick={() => setSelectedBoard(board)}
+                className="rounded-xl overflow-hidden bg-card border border-border text-left hover:border-primary transition"
+              >
                 <div className="grid grid-cols-2 gap-0.5 aspect-square">
                   {board.pins.slice(0, 4).map((pin, i) => (
                     <div key={i} className="overflow-hidden bg-secondary">
-                      <img
-                        src={pin.imageUrl}
-                        alt=""
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
+                      <img src={pin.image_url} alt="" className="w-full h-full object-cover" loading="lazy" />
                     </div>
                   ))}
                   {Array.from({ length: Math.max(0, 4 - board.pins.length) }).map((_, i) => (
@@ -252,7 +290,7 @@ const ProfilePage = () => {
                   <p className="text-sm font-body font-semibold text-foreground truncate">{board.name}</p>
                   <p className="text-xs font-body text-muted-foreground">{board.pins.length} Pins</p>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
 
@@ -265,6 +303,12 @@ const ProfilePage = () => {
               <p className="text-xs font-body text-muted-foreground mt-1">Create a board to start pinning your interests</p>
             </div>
           )}
+
+          <CreateBoardModal
+            open={showCreateBoard}
+            onClose={() => setShowCreateBoard(false)}
+            onCreated={handleCreateBoard}
+          />
         </div>
       )}
     </div>
