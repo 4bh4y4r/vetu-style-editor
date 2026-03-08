@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { LogOut, Plus, Image, Shirt, Sparkles, Search, Settings } from 'lucide-react';
+import { Plus, Image, Shirt, LayoutGrid, Search, Settings, FolderPlus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { outfitCards } from '@/data/fashion';
 import MasonryGrid from '@/components/MasonryGrid';
 import UploadWardrobeModal from '@/components/UploadWardrobeModal';
-import AIStylistChat from '@/components/AIStylistChat';
 
 interface WardrobeItem {
   id: string;
@@ -21,20 +20,45 @@ interface Profile {
   bio: string | null;
 }
 
+interface Board {
+  id: string;
+  name: string;
+  pins: { imageUrl: string }[];
+}
+
 const TABS = [
   { key: 'outfits' as const, label: 'Outfits', icon: Image },
   { key: 'closet' as const, label: 'Closet', icon: Shirt },
-  { key: 'ai' as const, label: 'AI Stylist', icon: Sparkles },
+  { key: 'boards' as const, label: 'Boards', icon: LayoutGrid },
+];
+
+const defaultBoards: Board[] = [
+  {
+    id: 'b1',
+    name: 'Streetwear Inspo',
+    pins: outfitCards.filter(c => c.category === 'Streetwear').map(c => ({ imageUrl: c.imageUrl })),
+  },
+  {
+    id: 'b2',
+    name: 'Minimal Looks',
+    pins: outfitCards.filter(c => c.category === 'Minimal').map(c => ({ imageUrl: c.imageUrl })),
+  },
+  {
+    id: 'b3',
+    name: 'Date Night',
+    pins: outfitCards.filter(c => c.category === 'Formal').map(c => ({ imageUrl: c.imageUrl })),
+  },
 ];
 
 const ProfilePage = () => {
   const { user, signOut } = useAuth();
-  const [tab, setTab] = useState<'outfits' | 'closet' | 'ai'>('outfits');
+  const [tab, setTab] = useState<'outfits' | 'closet' | 'boards'>('outfits');
   const [profile, setProfile] = useState<Profile | null>(null);
   const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([]);
   const [showUpload, setShowUpload] = useState(false);
   const [closetFilter, setClosetFilter] = useState('All');
   const [closetSearch, setClosetSearch] = useState('');
+  const [boards] = useState<Board[]>(defaultBoards);
 
   useEffect(() => {
     if (!user) return;
@@ -189,7 +213,59 @@ const ProfilePage = () => {
           />
         </>
       ) : (
-        <AIStylistChat wardrobeItems={wardrobeItems} />
+        /* Boards Tab - Pinterest-style boards */
+        <div className="px-4">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="flex-1 relative">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search boards..."
+                className="w-full pl-9 pr-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary transition"
+              />
+            </div>
+            <button className="p-2 rounded-lg bg-secondary text-foreground hover:bg-muted transition">
+              <FolderPlus size={18} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            {boards.map(board => (
+              <div key={board.id} className="rounded-xl overflow-hidden bg-card border border-border">
+                {/* Board preview grid */}
+                <div className="grid grid-cols-2 gap-0.5 aspect-square">
+                  {board.pins.slice(0, 4).map((pin, i) => (
+                    <div key={i} className="overflow-hidden bg-secondary">
+                      <img
+                        src={pin.imageUrl}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                  {Array.from({ length: Math.max(0, 4 - board.pins.length) }).map((_, i) => (
+                    <div key={`empty-${i}`} className="bg-secondary" />
+                  ))}
+                </div>
+                <div className="px-3 py-2.5">
+                  <p className="text-sm font-body font-semibold text-foreground truncate">{board.name}</p>
+                  <p className="text-xs font-body text-muted-foreground">{board.pins.length} Pins</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {boards.length === 0 && (
+            <div className="py-12 text-center">
+              <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center mx-auto mb-3">
+                <LayoutGrid size={24} className="text-muted-foreground" />
+              </div>
+              <p className="text-sm font-body font-medium text-foreground">No boards yet</p>
+              <p className="text-xs font-body text-muted-foreground mt-1">Create a board to start pinning your interests</p>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
