@@ -140,7 +140,7 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
               <div
                 className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm font-body ${
                   msg.role === 'user'
-                    ? 'bg-feroza text-accent-foreground rounded-br-md'
+                    ? 'bg-primary text-primary-foreground rounded-br-md'
                     : 'bg-secondary text-secondary-foreground rounded-bl-md'
                 }`}
               >
