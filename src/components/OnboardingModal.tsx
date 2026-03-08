@@ -193,7 +193,7 @@ const OnboardingModal = ({ open, onComplete }: OnboardingModalProps) => {
         )}
 
         {/* Continue button right below content */}
-        <div className="w-full max-w-xs flex justify-end mt-12">
+        <div className="w-full max-w-xs flex justify-end mt-20">
           <button
             type="button"
             onClick={(e) => {
