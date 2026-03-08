@@ -1,13 +1,22 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Shirt, ImageIcon, Loader2 } from 'lucide-react';
+import { Send, Sparkles, Shirt, ImageIcon, Loader2, MapPin, Calendar, Sun, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import type { WardrobeItem, ChatMessage } from '@/types';
 import { AI_QUICK_PROMPTS, AI_IMAGE_PROMPTS, getEdgeFunctionUrl } from '@/constants';
 
-// ─── API URLs ────────────────────────────────────────────────────
 const CHAT_URL = getEdgeFunctionUrl('ai-stylist');
 const IMAGE_URL = getEdgeFunctionUrl('generate-outfit-image');
+
+export interface StyleContext {
+  location: string;
+  occasion: string;
+  eventType: string;
+  comfort: string;
+}
+
+const OCCASIONS = ['Casual', 'Work / Office', 'Date Night', 'Wedding', 'Party', 'Travel', 'Interview', 'Gym / Active'] as const;
+const COMFORT_LEVELS = ['Prioritize comfort', 'Balanced', 'Prioritize style'] as const;
 
 interface AIStylistChatProps {
   wardrobeItems: WardrobeItem[];
@@ -18,11 +27,23 @@ const AIStylistChat = ({ wardrobeItems }: AIStylistChatProps) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [showContext, setShowContext] = useState(true);
+  const [styleContext, setStyleContext] = useState<StyleContext>({
+    location: '',
+    occasion: 'Casual',
+    eventType: '',
+    comfort: 'Balanced',
+  });
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
+
+  // Hide context panel after first message
+  useEffect(() => {
+    if (messages.length > 0) setShowContext(false);
+  }, [messages.length]);
 
   // ─── Image generation ─────────────────────────────────────────
   const generateImage = async (prompt: string) => {
@@ -70,7 +91,6 @@ const AIStylistChat = ({ wardrobeItems }: AIStylistChatProps) => {
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading || isGeneratingImage) return;
 
-    // Route image prompts to the image generator
     if (text.startsWith('🎨')) {
       return generateImage(text);
     }
@@ -105,6 +125,7 @@ const AIStylistChat = ({ wardrobeItems }: AIStylistChatProps) => {
             .filter((m) => !m.imageUrl)
             .map((m) => ({ role: m.role, content: m.content })),
           wardrobeItems: wardrobeItems.map((i) => ({ category: i.category, name: i.name })),
+          styleContext,
         }),
       });
 
@@ -151,17 +172,20 @@ const AIStylistChat = ({ wardrobeItems }: AIStylistChatProps) => {
 
   return (
     <div className="flex flex-col h-[calc(100vh-280px)] px-4">
+      {/* ─── Context panel ──────────────────────────────────── */}
+      <ContextPanel
+        styleContext={styleContext}
+        onChange={setStyleContext}
+        expanded={showContext}
+        onToggle={() => setShowContext(!showContext)}
+      />
+
       {/* ─── Messages area ────────────────────────────────────── */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pb-4">
         {messages.length === 0 ? (
-          <EmptyState
-            wardrobeCount={wardrobeItems.length}
-            onSend={sendMessage}
-          />
+          <EmptyState wardrobeCount={wardrobeItems.length} onSend={sendMessage} />
         ) : (
-          messages.map((msg, i) => (
-            <MessageBubble key={i} message={msg} />
-          ))
+          messages.map((msg, i) => <MessageBubble key={i} message={msg} />)
         )}
 
         {isGeneratingImage && <ImageLoadingIndicator />}
@@ -202,6 +226,128 @@ const AIStylistChat = ({ wardrobeItems }: AIStylistChatProps) => {
   );
 };
 
+// ─── Context Panel ───────────────────────────────────────────────
+
+const ContextPanel = ({
+  styleContext,
+  onChange,
+  expanded,
+  onToggle,
+}: {
+  styleContext: StyleContext;
+  onChange: (ctx: StyleContext) => void;
+  expanded: boolean;
+  onToggle: () => void;
+}) => {
+  const hasContext = styleContext.location || styleContext.eventType;
+  const summary = [
+    styleContext.location,
+    styleContext.occasion,
+    styleContext.eventType,
+    styleContext.comfort,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  return (
+    <div className="mb-3 rounded-xl border border-border bg-secondary/50 overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-body font-semibold text-foreground"
+      >
+        <span className="flex items-center gap-1.5">
+          <Sun size={14} className="text-accent" />
+          Style Context
+          {!expanded && hasContext && (
+            <span className="text-muted-foreground font-normal ml-1 truncate max-w-[180px]">
+              — {summary}
+            </span>
+          )}
+        </span>
+        {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      </button>
+
+      {expanded && (
+        <div className="px-3 pb-3 space-y-3">
+          {/* Location */}
+          <div>
+            <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">
+              <MapPin size={10} className="inline mr-1" />
+              Location / City
+            </label>
+            <input
+              type="text"
+              value={styleContext.location}
+              onChange={(e) => onChange({ ...styleContext, location: e.target.value })}
+              placeholder="e.g. Mumbai, New York, London"
+              className="w-full px-3 py-2 rounded-lg bg-background text-foreground text-xs font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition"
+            />
+          </div>
+
+          {/* Occasion */}
+          <div>
+            <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+              <Calendar size={10} className="inline mr-1" />
+              Occasion
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {OCCASIONS.map((o) => (
+                <button
+                  key={o}
+                  onClick={() => onChange({ ...styleContext, occasion: o })}
+                  className={`px-2.5 py-1.5 rounded-full text-[11px] font-body font-medium transition ${
+                    styleContext.occasion === o
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-background text-muted-foreground hover:bg-muted'
+                  }`}
+                >
+                  {o}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Event details */}
+          <div>
+            <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">
+              Event Details (optional)
+            </label>
+            <input
+              type="text"
+              value={styleContext.eventType}
+              onChange={(e) => onChange({ ...styleContext, eventType: e.target.value })}
+              placeholder="e.g. outdoor brunch, evening gala, beach party"
+              className="w-full px-3 py-2 rounded-lg bg-background text-foreground text-xs font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition"
+            />
+          </div>
+
+          {/* Comfort preference */}
+          <div>
+            <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+              Comfort vs Style
+            </label>
+            <div className="flex gap-1.5">
+              {COMFORT_LEVELS.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => onChange({ ...styleContext, comfort: c })}
+                  className={`flex-1 px-2 py-1.5 rounded-lg text-[11px] font-body font-medium transition ${
+                    styleContext.comfort === c
+                      ? 'bg-accent text-accent-foreground'
+                      : 'bg-background text-muted-foreground hover:bg-muted'
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ─── Sub-components ──────────────────────────────────────────────
 
 const EmptyState = ({
@@ -217,7 +363,7 @@ const EmptyState = ({
     </div>
     <h3 className="text-base font-display font-bold text-foreground mb-1">AI Stylist</h3>
     <p className="text-xs font-body text-muted-foreground mb-4 max-w-[240px]">
-      Get outfit suggestions, styling advice, and AI-generated outfit images
+      Set your context above, then ask for personalized outfit advice based on weather, occasion & comfort
     </p>
 
     <SectionLabel>Ask a question</SectionLabel>
