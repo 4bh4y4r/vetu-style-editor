@@ -160,11 +160,11 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
                 </>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full w-full">
-                  <span className={`text-[11px] font-body ${today ? 'text-gold font-bold' : 'text-muted-foreground/60'}`}>
+                  <span className={`text-[11px] font-body ${today ? 'text-primary font-bold' : 'text-muted-foreground/60'}`}>
                     {format(day, 'd')}
                   </span>
                   {today && (
-                    <div className="w-1 h-1 rounded-full bg-gold mt-0.5" />
+                    <div className="w-1 h-1 rounded-full bg-primary mt-0.5" />
                   )}
                 </div>
               )}
