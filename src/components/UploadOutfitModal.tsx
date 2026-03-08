@@ -109,7 +109,7 @@ const UploadOutfitModal = ({ open, date, onClose, onUploaded }: UploadOutfitModa
           value={notes}
           onChange={e => setNotes(e.target.value)}
           placeholder="Add a note (optional)"
-          className="w-full px-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-gold transition mb-3"
+          className="w-full px-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition mb-3"
         />
 
         {/* Visibility toggle */}
