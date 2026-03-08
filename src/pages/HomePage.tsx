@@ -1,18 +1,61 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
-import { outfitCards, categories } from '@/data/fashion';
+import { outfitCards, categories, OutfitCard as OutfitCardType } from '@/data/fashion';
 import MasonryGrid from '@/components/MasonryGrid';
+import { supabase } from '@/integrations/supabase/client';
+
+const heights: Array<'tall' | 'medium' | 'short'> = ['tall', 'medium', 'short'];
 
 const HomePage = () => {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [publicPosts, setPublicPosts] = useState<OutfitCardType[]>([]);
+
+  useEffect(() => {
+    const fetchPublicPosts = async () => {
+      const { data } = await supabase
+        .from('outfit_posts')
+        .select('id, image_url, user_id, created_at')
+        .eq('is_public', true)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (data && data.length > 0) {
+        // Fetch profile info for these users
+        const userIds = [...new Set(data.map(p => p.user_id))];
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, username, avatar_url')
+          .in('user_id', userIds);
+
+        const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+
+        const cards: OutfitCardType[] = data.map((post, i) => {
+          const profile = profileMap.get(post.user_id);
+          return {
+            id: post.id,
+            imageUrl: post.image_url,
+            username: profile?.username || 'user',
+            avatarUrl: profile?.avatar_url || `https://i.pravatar.cc/40?u=${post.user_id}`,
+            liked: false,
+            height: heights[i % 3],
+            category: 'All',
+          };
+        });
+        setPublicPosts(cards);
+      }
+    };
+    fetchPublicPosts();
+  }, []);
+
+  // Combine real posts with demo data as fallback
+  const allCards = publicPosts.length > 0 ? [...publicPosts, ...outfitCards] : outfitCards;
 
   const filtered = activeCategory === 'All'
-    ? outfitCards
-    : outfitCards.filter(c => c.category === activeCategory);
+    ? allCards
+    : allCards.filter(c => c.category === activeCategory);
 
   return (
     <div className="pb-20">
-      {/* Top Bar */}
       <div className="flex items-center justify-between px-4 pt-4 pb-3">
         <h1 className="text-2xl font-display font-bold tracking-tight text-primary">DRIP</h1>
         <button className="p-2 text-foreground" aria-label="Notifications">
@@ -20,7 +63,6 @@ const HomePage = () => {
         </button>
       </div>
 
-      {/* Category Pills */}
       <div className="flex gap-2.5 px-4 pb-4 overflow-x-auto scrollbar-hide">
         {categories.map(cat => (
           <button
@@ -37,7 +79,6 @@ const HomePage = () => {
         ))}
       </div>
 
-      {/* Feed */}
       <MasonryGrid cards={filtered} />
     </div>
   );
