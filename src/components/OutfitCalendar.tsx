@@ -234,7 +234,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
                     </button>
                     <button
                       onClick={() => handleDelete(outfit.id)}
-                      className="p-2 rounded-full hover:bg-rani/10 transition text-muted-foreground hover:text-rani"
+                      className="p-2 rounded-full hover:bg-destructive/10 transition text-muted-foreground hover:text-destructive"
                     >
                       <Trash2 size={15} />
                     </button>
