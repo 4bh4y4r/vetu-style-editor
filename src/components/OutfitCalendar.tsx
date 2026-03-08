@@ -88,7 +88,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
     <div className="px-4">
       {/* Month nav — editorial style */}
       <div className="flex items-center justify-between mb-5">
-        <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 rounded-full text-muted-foreground hover:text-gold hover:bg-gold/10 transition">
+        <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition">
           <ChevronLeft size={18} />
         </button>
         <div className="text-center">
@@ -99,7 +99,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
             {format(currentMonth, 'yyyy')}
           </p>
         </div>
-        <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 rounded-full text-muted-foreground hover:text-gold hover:bg-gold/10 transition">
+        <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition">
           <ChevronRight size={18} />
         </button>
       </div>
