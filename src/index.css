@@ -6,64 +6,45 @@
 
 @layer base {
   :root {
-    /* Light & playful fashion palette */
-    --background: 30 30% 97%;
-    --foreground: 20 20% 15%;
+    /* Pinterest-inspired palette */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 13%;
 
     --card: 0 0% 100%;
-    --card-foreground: 20 20% 15%;
+    --card-foreground: 0 0% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 20 20% 15%;
+    --popover-foreground: 0 0% 13%;
 
-    --primary: 340 65% 58%;
+    --primary: 356 84% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 25% 93%;
-    --secondary-foreground: 20 15% 40%;
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 0 0% 33%;
 
-    --muted: 30 15% 90%;
-    --muted-foreground: 20 10% 50%;
+    --muted: 0 0% 93%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 260 50% 62%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 0 0% 95%;
+    --accent-foreground: 0 0% 13%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 30 15% 88%;
-    --input: 30 15% 88%;
-    --ring: 340 65% 58%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 356 84% 45%;
 
-    --radius: 0.75rem;
-
-    /* Fun fashion tokens */
-    --gold: 38 75% 55%;
-    --gold-light: 38 65% 70%;
-    --saffron: 25 85% 58%;
-    --feroza: 174 55% 45%;
-    --feroza-light: 174 45% 60%;
-    --rani: 340 65% 58%;
-    --rani-light: 340 55% 72%;
-    --purple: 260 50% 62%;
-    --purple-light: 260 40% 75%;
-    --marigold: 42 85% 58%;
-    --marigold-light: 42 75% 72%;
-    --charcoal: 20 10% 25%;
-    --charcoal-deep: 20 15% 15%;
-    --blush: 350 45% 92%;
-    --peach: 20 70% 88%;
-    --mint: 160 35% 88%;
-    --lavender: 260 35% 90%;
+    --radius: 1rem;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 20 15% 40%;
-    --sidebar-primary: 340 65% 58%;
+    --sidebar-foreground: 0 0% 33%;
+    --sidebar-primary: 356 84% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 30 25% 93%;
-    --sidebar-accent-foreground: 20 15% 40%;
-    --sidebar-border: 30 15% 88%;
-    --sidebar-ring: 340 65% 58%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 0 0% 33%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 356 84% 45%;
   }
 }
 
