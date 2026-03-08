@@ -194,7 +194,7 @@ const OnboardingModal = ({ open, onComplete }: OnboardingModalProps) => {
       </div>
 
       {/* Bottom button */}
-      <div className="px-6 pb-8 relative z-10">
+      <div className="px-6 pb-8 flex justify-center relative z-10">
         <button
           type="button"
           onClick={(e) => {
@@ -203,7 +203,7 @@ const OnboardingModal = ({ open, onComplete }: OnboardingModalProps) => {
             handleNext();
           }}
           disabled={!canNext || saving}
-          className="w-full py-3.5 rounded-xl bg-primary text-primary-foreground font-body font-semibold text-sm disabled:opacity-40 transition hover:brightness-110 flex items-center justify-center gap-2 pointer-events-auto cursor-pointer"
+          className="px-8 py-3 rounded-full bg-primary text-primary-foreground font-body font-semibold text-sm disabled:opacity-40 transition hover:brightness-110 inline-flex items-center gap-2 pointer-events-auto cursor-pointer"
         >
           {saving ? 'Saving...' : step < 2 ? 'Continue' : 'Finish Setup'}
           {!saving && (step < 2 ? <ArrowRight size={16} /> : <Check size={16} />)}
