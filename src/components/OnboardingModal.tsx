@@ -192,7 +192,7 @@ const OnboardingModal = ({ open, onComplete }: OnboardingModalProps) => {
           </div>
         )}
         {/* Continue button */}
-        <div className="flex justify-end mt-6">
+        <div className="flex justify-end mt-6 w-full max-w-xs self-end">
           <button
             type="button"
             onClick={(e) => {
