@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Plus, Image, Shirt, LayoutGrid, Search, Settings, FolderPlus } from 'lucide-react';
+import { Plus, Shirt, LayoutGrid, Search, Settings, FolderPlus, CalendarDays } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { outfitCards } from '@/data/fashion';
-import MasonryGrid from '@/components/MasonryGrid';
 import UploadWardrobeModal from '@/components/UploadWardrobeModal';
 import CreateBoardModal from '@/components/CreateBoardModal';
 import BoardDetail from '@/components/BoardDetail';
+import OutfitCalendar from '@/components/OutfitCalendar';
+import UploadOutfitModal from '@/components/UploadOutfitModal';
 
 interface WardrobeItem {
   id: string;
@@ -29,7 +30,7 @@ interface Board {
 }
 
 const TABS = [
-  { key: 'outfits' as const, label: 'Outfits', icon: Image },
+  { key: 'outfits' as const, label: 'Calendar', icon: CalendarDays },
   { key: 'closet' as const, label: 'Closet', icon: Shirt },
   { key: 'boards' as const, label: 'Boards', icon: LayoutGrid },
 ];
@@ -45,6 +46,9 @@ const ProfilePage = () => {
   const [boards, setBoards] = useState<Board[]>([]);
   const [showCreateBoard, setShowCreateBoard] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<Board | null>(null);
+  const [outfitDate, setOutfitDate] = useState<Date | null>(null);
+  const [showOutfitUpload, setShowOutfitUpload] = useState(false);
+  const [calendarKey, setCalendarKey] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -136,7 +140,6 @@ const ProfilePage = () => {
       </div>
 
       <div className="flex items-center gap-5 px-4 mb-2">
-        {/* Avatar with + button */}
         <div className="relative flex-shrink-0">
           <img
             src={profile?.avatar_url || `https://ui-avatars.com/api/?name=${displayName}&background=1A1A1A&color=D4A843`}
@@ -152,7 +155,6 @@ const ProfilePage = () => {
           </button>
         </div>
 
-        {/* Stats */}
         <div className="flex flex-1 justify-around">
           <div className="text-center">
             <p className="text-lg font-display font-bold text-foreground">{outfitCards.slice(0, 6).length}</p>
@@ -169,7 +171,6 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* Name, bio, badge */}
       <div className="px-4 mb-4">
         <p className="text-sm font-body font-semibold text-foreground">{profile?.display_name || displayName}</p>
         <p className="text-xs font-body text-muted-foreground mt-0.5">{profile?.bio || 'Fashion lover ✨'}</p>
@@ -202,14 +203,22 @@ const ProfilePage = () => {
       {/* Content */}
       {tab === 'outfits' ? (
         <>
-          <MasonryGrid cards={outfitCards.slice(0, 6)} />
-          <button
-            onClick={() => setShowUpload(true)}
-            className="fixed bottom-20 right-4 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center z-40 hover:scale-105 transition-transform"
-            aria-label="Add outfit"
-          >
-            <Plus size={24} />
-          </button>
+          <OutfitCalendar
+            key={calendarKey}
+            onAddOutfit={(date) => {
+              setOutfitDate(date);
+              setShowOutfitUpload(true);
+            }}
+          />
+          <UploadOutfitModal
+            open={showOutfitUpload}
+            date={outfitDate || new Date()}
+            onClose={() => setShowOutfitUpload(false)}
+            onUploaded={() => {
+              setShowOutfitUpload(false);
+              setCalendarKey(k => k + 1);
+            }}
+          />
         </>
       ) : tab === 'closet' ? (
         <>
