@@ -125,9 +125,13 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          body_type: string | null
           created_at: string
           display_name: string | null
+          height_cm: number | null
           id: string
+          onboarding_complete: boolean
+          skin_tone: string | null
           updated_at: string
           user_id: string
           username: string | null
@@ -135,9 +139,13 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          body_type?: string | null
           created_at?: string
           display_name?: string | null
+          height_cm?: number | null
           id?: string
+          onboarding_complete?: boolean
+          skin_tone?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
@@ -145,9 +153,13 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          body_type?: string | null
           created_at?: string
           display_name?: string | null
+          height_cm?: number | null
           id?: string
+          onboarding_complete?: boolean
+          skin_tone?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
