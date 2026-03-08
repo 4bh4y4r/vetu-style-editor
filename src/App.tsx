@@ -8,6 +8,7 @@ import HomePage from "./pages/HomePage";
 import SearchPage from "./pages/SearchPage";
 import ProfilePage from "./pages/ProfilePage";
 import AIStylistPage from "./pages/AIStylistPage";
+import OutfitDetailPage from "./pages/OutfitDetailPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
@@ -42,6 +43,7 @@ const AppRoutes = () => (
       <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
       <Route path="/ai-stylist" element={<ProtectedRoute><AIStylistPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+      <Route path="/outfit/:id" element={<ProtectedRoute><OutfitDetailPage /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
     <BottomNavWrapper />
