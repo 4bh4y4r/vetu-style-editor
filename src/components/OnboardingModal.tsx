@@ -191,23 +191,23 @@ const OnboardingModal = ({ open, onComplete }: OnboardingModalProps) => {
             </div>
           </div>
         )}
-      </div>
 
-      {/* Bottom — Continue button aligned right */}
-      <div className="px-6 pb-8 flex justify-end">
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleNext();
-          }}
-          disabled={!canNext || saving}
-          className="px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-body font-semibold text-sm disabled:opacity-40 transition hover:brightness-110 inline-flex items-center gap-2 pointer-events-auto cursor-pointer"
-        >
-          {saving ? 'Saving...' : step < 2 ? 'Continue' : 'Finish Setup'}
-          {!saving && (step < 2 ? <ArrowRight size={16} /> : <Check size={16} />)}
-        </button>
+        {/* Continue button right below content */}
+        <div className="w-full max-w-xs flex justify-end mt-6">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleNext();
+            }}
+            disabled={!canNext || saving}
+            className="px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-body font-semibold text-sm disabled:opacity-40 transition hover:brightness-110 inline-flex items-center gap-2 pointer-events-auto cursor-pointer"
+          >
+            {saving ? 'Saving...' : step < 2 ? 'Continue' : 'Finish Setup'}
+            {!saving && (step < 2 ? <ArrowRight size={16} /> : <Check size={16} />)}
+          </button>
+        </div>
       </div>
     </div>
   );
