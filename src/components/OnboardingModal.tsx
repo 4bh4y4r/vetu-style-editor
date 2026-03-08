@@ -123,12 +123,16 @@ const OnboardingModal = ({ open, onComplete }: OnboardingModalProps) => {
           <div className="w-full max-w-xs">
             <div className="relative">
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={height}
-                onChange={(e) => setHeight(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9]/g, '');
+                  if (val.length <= 3) setHeight(val);
+                }}
                 placeholder="170"
-                min={100}
-                max={250}
+                autoFocus
                 className="w-full text-center text-3xl font-display font-bold px-4 py-4 rounded-2xl bg-secondary text-foreground placeholder:text-muted-foreground/40 outline-none focus:ring-2 focus:ring-primary/30 transition"
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-body text-muted-foreground">
