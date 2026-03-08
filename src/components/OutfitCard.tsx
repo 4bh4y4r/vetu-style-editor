@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Heart, Bookmark } from 'lucide-react';
 import { OutfitCard as OutfitCardType } from '@/data/fashion';
 import SaveToBoardModal from './SaveToBoardModal';
@@ -15,8 +16,13 @@ interface OutfitCardProps {
 }
 
 const OutfitCard = ({ card, index = 0 }: OutfitCardProps) => {
+  const navigate = useNavigate();
   const [liked, setLiked] = useState(card.liked);
   const [showSave, setShowSave] = useState(false);
+
+  const handleImageClick = () => {
+    navigate(`/outfit/${card.id}`);
+  };
 
   return (
     <>
@@ -24,11 +30,14 @@ const OutfitCard = ({ card, index = 0 }: OutfitCardProps) => {
         className="masonry-item animate-fade-in rounded-xl overflow-hidden bg-card shadow-sm border border-border/50"
         style={{ animationDelay: `${index * 60}ms` }}
       >
-        <div className={`${heightMap[card.height]} w-full overflow-hidden`}>
+        <div
+          className={`${heightMap[card.height]} w-full overflow-hidden cursor-pointer`}
+          onClick={handleImageClick}
+        >
           <img
             src={card.imageUrl}
             alt={`Outfit by ${card.username}`}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
             loading="lazy"
           />
         </div>
@@ -39,24 +48,39 @@ const OutfitCard = ({ card, index = 0 }: OutfitCardProps) => {
               alt={card.username}
               className="w-6 h-6 rounded-full object-cover flex-shrink-0 ring-1 ring-border"
             />
-            <span className="text-xs font-body text-muted-foreground truncate">{card.username}</span>
+            <span className="text-xs font-body text-muted-foreground truncate">
+              {card.username}
+            </span>
           </div>
           <div className="flex items-center gap-1">
             <button
-              onClick={() => setShowSave(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowSave(true);
+              }}
               className="flex-shrink-0 p-1"
               aria-label="Save to board"
             >
-              <Bookmark size={16} className="text-muted-foreground hover:text-primary transition" />
+              <Bookmark
+                size={16}
+                className="text-muted-foreground hover:text-primary transition"
+              />
             </button>
             <button
-              onClick={() => setLiked(!liked)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setLiked(!liked);
+              }}
               className="flex-shrink-0 p-1"
               aria-label={liked ? 'Unlike' : 'Like'}
             >
               <Heart
                 size={16}
-                className={liked ? 'fill-primary text-primary' : 'text-muted-foreground hover:text-primary transition'}
+                className={
+                  liked
+                    ? 'fill-primary text-primary'
+                    : 'text-muted-foreground hover:text-primary transition'
+                }
               />
             </button>
           </div>
