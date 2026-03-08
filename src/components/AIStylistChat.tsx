@@ -217,7 +217,7 @@ const AIStylistChat = ({ wardrobeItems }: AIStylistChatProps) => {
         <button
           onClick={() => sendMessage(input)}
           disabled={!input.trim() || isBusy}
-          className="w-10 h-10 rounded-full gradient-ai text-accent-foreground flex items-center justify-center disabled:opacity-50 transition hover:opacity-90"
+          className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-50 transition hover:opacity-90"
         >
           <Send size={16} />
         </button>
