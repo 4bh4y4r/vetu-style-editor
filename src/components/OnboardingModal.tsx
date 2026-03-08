@@ -83,7 +83,7 @@ const OnboardingModal = ({ open, onComplete }: OnboardingModalProps) => {
   const CurrentIcon = steps[step].icon;
 
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col">
+    <div className="fixed inset-0 z-[9999] bg-background flex flex-col" style={{ isolation: 'isolate' }}>
       {/* Progress bar */}
       <div className="flex gap-1.5 px-6 pt-6">
         {steps.map((_, i) => (
@@ -194,11 +194,16 @@ const OnboardingModal = ({ open, onComplete }: OnboardingModalProps) => {
       </div>
 
       {/* Bottom button */}
-      <div className="px-6 pb-8">
+      <div className="px-6 pb-8 relative z-10">
         <button
-          onClick={handleNext}
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleNext();
+          }}
           disabled={!canNext || saving}
-          className="w-full py-3.5 rounded-xl bg-primary text-primary-foreground font-body font-semibold text-sm disabled:opacity-40 transition hover:brightness-110 flex items-center justify-center gap-2"
+          className="w-full py-3.5 rounded-xl bg-primary text-primary-foreground font-body font-semibold text-sm disabled:opacity-40 transition hover:brightness-110 flex items-center justify-center gap-2 pointer-events-auto cursor-pointer"
         >
           {saving ? 'Saving...' : step < 2 ? 'Continue' : 'Finish Setup'}
           {!saving && (step < 2 ? <ArrowRight size={16} /> : <Check size={16} />)}
