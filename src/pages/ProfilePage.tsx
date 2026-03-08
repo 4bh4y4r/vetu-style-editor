@@ -57,7 +57,8 @@ const ProfilePage = () => {
         profile={profile}
         displayName={displayName}
         wardrobeCount={wardrobeItems.length}
-        boardCount={boards.length}
+        followersCount={followersCount}
+        followingCount={followingCount}
         onAddContent={() => setShowUpload(true)}
       />
 
