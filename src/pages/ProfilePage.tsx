@@ -174,7 +174,7 @@ const ProfilePage = () => {
       <div className="px-4 mb-4">
         <p className="text-sm font-body font-semibold text-foreground">{profile?.display_name || displayName}</p>
         <p className="text-xs font-body text-muted-foreground mt-0.5">{profile?.bio || 'Fashion lover ✨'}</p>
-        <span className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-marigold/15 text-marigold text-[10px] font-body font-semibold">
+        <span className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-body font-semibold">
           ★ Style Explorer
         </span>
       </div>
@@ -298,7 +298,7 @@ const ProfilePage = () => {
             </div>
             <button
               onClick={() => setShowCreateBoard(true)}
-              className="p-2 rounded-lg bg-secondary text-gold hover:bg-muted transition"
+              className="p-2 rounded-lg bg-secondary text-primary hover:bg-muted transition"
             >
               <FolderPlus size={18} />
             </button>

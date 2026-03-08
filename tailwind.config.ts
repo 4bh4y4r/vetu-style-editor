@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['"Playfair Display"', 'serif'],
-        body: ['"DM Sans"', 'sans-serif'],
+        display: ['Inter', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -51,44 +51,11 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        gold: {
-          DEFAULT: "hsl(var(--gold))",
-          light: "hsl(var(--gold-light))",
-        },
-        saffron: {
-          DEFAULT: "hsl(var(--saffron))",
-        },
-        feroza: {
-          DEFAULT: "hsl(var(--feroza))",
-          light: "hsl(var(--feroza-light))",
-        },
-        rani: {
-          DEFAULT: "hsl(var(--rani))",
-          light: "hsl(var(--rani-light))",
-        },
-        purple: {
-          DEFAULT: "hsl(var(--purple))",
-          light: "hsl(var(--purple-light))",
-        },
-        marigold: {
-          DEFAULT: "hsl(var(--marigold))",
-          light: "hsl(var(--marigold-light))",
-        },
-        charcoal: {
-          DEFAULT: "hsl(var(--charcoal))",
-          deep: "hsl(var(--charcoal-deep))",
-        },
-        blush: {
-          DEFAULT: "hsl(var(--blush))",
-        },
-        peach: {
-          DEFAULT: "hsl(var(--peach))",
-        },
-        mint: {
-          DEFAULT: "hsl(var(--mint))",
-        },
-        lavender: {
-          DEFAULT: "hsl(var(--lavender))",
+        pinterest: {
+          red: "hsl(356 84% 45%)",
+          dark: "hsl(0 0% 13%)",
+          gray: "hsl(0 0% 45%)",
+          light: "hsl(0 0% 95%)",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

@@ -207,7 +207,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
                     <div className="absolute top-2 left-2">
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-body font-semibold backdrop-blur-md ${
                         outfit.is_public
-                          ? 'bg-feroza/20 text-white border border-feroza/30'
+                          ? 'bg-primary/20 text-white border border-primary/30'
                           : 'bg-black/30 text-white/70 border border-white/10'
                       }`}>
                         {outfit.is_public ? <Eye size={9} /> : <EyeOff size={9} />}
@@ -222,7 +222,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
                       onClick={() => handleToggleVisibility(outfit)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-body font-semibold transition ${
                         outfit.is_public
-                          ? 'bg-feroza/15 text-feroza hover:bg-feroza/25'
+                          ? 'bg-primary/15 text-primary hover:bg-primary/25'
                           : 'bg-secondary text-muted-foreground hover:text-foreground'
                       }`}
                     >
@@ -234,7 +234,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
                     </button>
                     <button
                       onClick={() => handleDelete(outfit.id)}
-                      className="p-2 rounded-full hover:bg-rani/10 transition text-muted-foreground hover:text-rani"
+                      className="p-2 rounded-full hover:bg-destructive/10 transition text-muted-foreground hover:text-destructive"
                     >
                       <Trash2 size={15} />
                     </button>
