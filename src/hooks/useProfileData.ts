@@ -3,17 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Profile, WardrobeItem, Board } from '@/types';
 
-/**
- * Hook to fetch and manage all profile-related data.
- * Keeps ProfilePage lean by encapsulating data-fetching logic.
- */
 export const useProfileData = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([]);
   const [boards, setBoards] = useState<Board[]>([]);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
 
-  // ─── Fetch profile ──────────────────────────────────────────
   useEffect(() => {
     if (!user) return;
     supabase
@@ -26,9 +23,9 @@ export const useProfileData = () => {
       });
     fetchWardrobe();
     fetchBoards();
+    fetchFollowCounts();
   }, [user]);
 
-  // ─── Wardrobe ───────────────────────────────────────────────
   const fetchWardrobe = async () => {
     if (!user) return;
     const { data } = await supabase
@@ -39,7 +36,6 @@ export const useProfileData = () => {
     if (data) setWardrobeItems(data);
   };
 
-  // ─── Boards ─────────────────────────────────────────────────
   const fetchBoards = async () => {
     if (!user) return;
     const { data: boardsData } = await supabase
@@ -64,6 +60,16 @@ export const useProfileData = () => {
     setBoards(boardsWithPins);
   };
 
+  const fetchFollowCounts = async () => {
+    if (!user) return;
+    const [{ count: followers }, { count: following }] = await Promise.all([
+      supabase.from('follows').select('*', { count: 'exact', head: true }).eq('following_id', user.id),
+      supabase.from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', user.id),
+    ]);
+    setFollowersCount(followers || 0);
+    setFollowingCount(following || 0);
+  };
+
   const createBoard = async (name: string) => {
     if (!user) return;
     await supabase.from('boards').insert({ user_id: user.id, name });
@@ -83,6 +89,8 @@ export const useProfileData = () => {
     displayName,
     wardrobeItems,
     boards,
+    followersCount,
+    followingCount,
     fetchWardrobe,
     fetchBoards,
     createBoard,

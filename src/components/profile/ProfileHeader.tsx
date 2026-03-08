@@ -6,7 +6,8 @@ interface ProfileHeaderProps {
   profile: Profile | null;
   displayName: string;
   wardrobeCount: number;
-  boardCount: number;
+  followersCount: number;
+  followingCount: number;
   onAddContent: () => void;
 }
 
@@ -14,7 +15,8 @@ const ProfileHeader = ({
   profile,
   displayName,
   wardrobeCount,
-  boardCount,
+  followersCount,
+  followingCount,
   onAddContent,
 }: ProfileHeaderProps) => {
   const { signOut } = useAuth();
@@ -55,8 +57,8 @@ const ProfileHeader = ({
 
         <div className="flex flex-1 justify-around">
           <Stat count={wardrobeCount} label="items" />
-          <Stat count={128} label="followers" />
-          <Stat count={96} label="following" />
+          <Stat count={followersCount} label="followers" />
+          <Stat count={followingCount} label="following" />
         </div>
       </div>
 
