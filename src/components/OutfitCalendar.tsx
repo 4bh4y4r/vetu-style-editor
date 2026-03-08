@@ -152,7 +152,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
                       {format(day, 'd')}
                     </span>
                     {dayOutfits.length > 1 && (
-                      <span className="bg-gold text-background text-[7px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
+                      <span className="bg-primary text-primary-foreground text-[7px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
                         +{dayOutfits.length - 1}
                       </span>
                     )}
