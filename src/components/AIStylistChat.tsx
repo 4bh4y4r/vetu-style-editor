@@ -380,12 +380,12 @@ const EmptyState = ({
     </div>
 
     <SectionLabel>Generate an image</SectionLabel>
-    <div className="flex flex-wrap gap-2 justify-center max-w-sm">
+    <div className="flex flex-wrap gap-1.5 justify-center max-w-sm">
       {AI_IMAGE_PROMPTS.map((p) => (
         <button
           key={p}
           onClick={() => onSend(p)}
-          className="px-3 py-2 rounded-full bg-accent/10 text-accent text-xs font-body hover:bg-accent/20 transition border border-accent/20"
+          className="px-3 py-2 rounded-full bg-secondary text-foreground text-xs font-body hover:bg-muted transition border border-border"
         >
           {p}
         </button>
