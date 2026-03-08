@@ -134,6 +134,7 @@ const AIStylistChat = ({ wardrobeItems, bodyProfile }: AIStylistChatProps) => {
           wardrobeItems: wardrobeItems.map((i) => ({ category: i.category, name: i.name })),
           styleContext,
           bodyProfile: bodyProfile || undefined,
+        }),
       });
 
       if (!resp.ok) {
