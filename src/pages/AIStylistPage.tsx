@@ -1,14 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import AIStylistChat from '@/components/AIStylistChat';
-
-interface WardrobeItem {
-  id: string;
-  image_url: string;
-  category: string;
-  name: string | null;
-}
+import type { WardrobeItem } from '@/types';
 
 const AIStylistPage = () => {
   const { user } = useAuth();
@@ -16,9 +10,14 @@ const AIStylistPage = () => {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from('wardrobe_items')
-      .select('*').eq('user_id', user.id).order('created_at', { ascending: false })
-      .then(({ data }) => { if (data) setWardrobeItems(data); });
+    supabase
+      .from('wardrobe_items')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) setWardrobeItems(data);
+      });
   }, [user]);
 
   return (
@@ -27,7 +26,9 @@ const AIStylistPage = () => {
         <h1 className="text-2xl font-display font-bold text-foreground">
           <span className="gradient-ai bg-clip-text text-transparent">AI Stylist</span>
         </h1>
-        <p className="text-sm font-body text-muted-foreground mt-0.5">Your personal fashion assistant</p>
+        <p className="text-sm font-body text-muted-foreground mt-0.5">
+          Your personal fashion assistant
+        </p>
       </div>
       <AIStylistChat wardrobeItems={wardrobeItems} />
     </div>

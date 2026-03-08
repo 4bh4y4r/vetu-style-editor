@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { X, Upload, Eye, EyeOff, Camera } from 'lucide-react';
 import { format } from 'date-fns';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -68,10 +68,7 @@ const UploadOutfitModal = ({ open, date, onClose, onUploaded }: UploadOutfitModa
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-end justify-center" onClick={onClose}>
-      <div
-        className="bg-card w-full max-w-md rounded-t-2xl p-5 animate-slide-up"
-        onClick={e => e.stopPropagation()}
-      >
+      <div className="bg-card w-full max-w-md rounded-t-2xl p-5 animate-slide-up" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-display font-bold text-foreground">
             Log Outfit — {format(date, 'MMM d, yyyy')}
@@ -107,7 +104,7 @@ const UploadOutfitModal = ({ open, date, onClose, onUploaded }: UploadOutfitModa
         <input
           type="text"
           value={notes}
-          onChange={e => setNotes(e.target.value)}
+          onChange={(e) => setNotes(e.target.value)}
           placeholder="Add a note (optional)"
           className="w-full px-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition mb-3"
         />

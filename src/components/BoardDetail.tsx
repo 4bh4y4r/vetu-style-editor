@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Trash2, MoreVertical } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import AddPinModal from './AddPinModal';
 
@@ -32,15 +32,18 @@ const BoardDetail = ({ boardId, boardName, onBack, onDeleteBoard }: BoardDetailP
     if (data) setPins(data);
   };
 
-  useEffect(() => { fetchPins(); }, [boardId]);
+  useEffect(() => {
+    fetchPins();
+  }, [boardId]);
 
   const deletePin = async (pinId: string) => {
     await supabase.from('board_pins').delete().eq('id', pinId);
-    setPins(prev => prev.filter(p => p.id !== pinId));
+    setPins((prev) => prev.filter((p) => p.id !== pinId));
   };
 
   return (
     <div>
+      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
         <button onClick={onBack} className="text-foreground hover:text-muted-foreground transition">
           <ArrowLeft size={20} />
@@ -53,7 +56,10 @@ const BoardDetail = ({ boardId, boardName, onBack, onDeleteBoard }: BoardDetailP
           {showMenu && (
             <div className="absolute right-0 top-8 bg-card border border-border rounded-xl shadow-lg py-1 z-50 min-w-[140px]">
               <button
-                onClick={() => { setShowMenu(false); onDeleteBoard(); }}
+                onClick={() => {
+                  setShowMenu(false);
+                  onDeleteBoard();
+                }}
                 className="w-full flex items-center gap-2 px-4 py-2.5 text-sm font-body text-destructive hover:bg-secondary transition"
               >
                 <Trash2 size={14} /> Delete Board
@@ -63,9 +69,13 @@ const BoardDetail = ({ boardId, boardName, onBack, onDeleteBoard }: BoardDetailP
         </div>
       </div>
 
+      {/* Pin grid */}
       <div className="columns-2 gap-3 px-4">
-        {pins.map(pin => (
-          <div key={pin.id} className="break-inside-avoid mb-3 rounded-xl overflow-hidden bg-card border border-border group relative">
+        {pins.map((pin) => (
+          <div
+            key={pin.id}
+            className="break-inside-avoid mb-3 rounded-xl overflow-hidden bg-card border border-border group relative"
+          >
             <img src={pin.image_url} alt={pin.title || ''} className="w-full object-cover" loading="lazy" />
             {pin.title && (
               <p className="px-2.5 py-2 text-xs font-body text-foreground truncate">{pin.title}</p>
@@ -80,6 +90,7 @@ const BoardDetail = ({ boardId, boardName, onBack, onDeleteBoard }: BoardDetailP
         ))}
       </div>
 
+      {/* Empty state */}
       {pins.length === 0 && (
         <div className="py-16 text-center px-4">
           <p className="text-sm font-body font-medium text-foreground">No pins yet</p>
@@ -87,6 +98,7 @@ const BoardDetail = ({ boardId, boardName, onBack, onDeleteBoard }: BoardDetailP
         </div>
       )}
 
+      {/* FAB */}
       <button
         onClick={() => setShowAddPin(true)}
         className="fixed bottom-20 right-4 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center z-40 hover:scale-105 transition-transform"
