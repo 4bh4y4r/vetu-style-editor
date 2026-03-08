@@ -222,7 +222,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
                       onClick={() => handleToggleVisibility(outfit)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-body font-semibold transition ${
                         outfit.is_public
-                          ? 'bg-feroza/15 text-feroza hover:bg-feroza/25'
+                          ? 'bg-primary/15 text-primary hover:bg-primary/25'
                           : 'bg-secondary text-muted-foreground hover:text-foreground'
                       }`}
                     >
