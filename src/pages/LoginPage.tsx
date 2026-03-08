@@ -27,7 +27,7 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm">
-        <h1 className="text-4xl font-display font-bold text-center text-foreground mb-2">VÊTU</h1>
+        <h1 className="text-4xl font-display font-bold text-center text-foreground mb-2">DRIP</h1>
         <p className="text-sm font-body text-muted-foreground text-center mb-10">Welcome back</p>
 
         <form onSubmit={handleLogin} className="space-y-4">
