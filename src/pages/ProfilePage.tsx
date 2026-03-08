@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useProfileData } from '@/hooks/useProfileData';
+import { useStreak } from '@/hooks/useStreak';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileTabs, { type TabKey } from '@/components/profile/ProfileTabs';
+import StreakWidget from '@/components/profile/StreakWidget';
 import ClosetTab from '@/components/profile/ClosetTab';
 import BoardsTab from '@/components/profile/BoardsTab';
 import BoardDetail from '@/components/BoardDetail';
@@ -22,6 +24,8 @@ const ProfilePage = () => {
     createBoard,
     deleteBoard,
   } = useProfileData();
+
+  const { streak, recordActivity } = useStreak();
 
   const [tab, setTab] = useState<TabKey>('outfits');
   const [selectedBoard, setSelectedBoard] = useState<Board | null>(null);
@@ -62,6 +66,14 @@ const ProfilePage = () => {
         onAddContent={() => setShowUpload(true)}
       />
 
+      {/* Streak widget */}
+      <StreakWidget
+        currentStreak={streak.currentStreak}
+        longestStreak={streak.longestStreak}
+        recentDays={streak.recentDays}
+        todayDone={streak.todayDone}
+      />
+
       <ProfileTabs activeTab={tab} onChangeTab={setTab} />
 
       {/* Tab content */}
@@ -81,6 +93,7 @@ const ProfilePage = () => {
             onUploaded={() => {
               setShowOutfitUpload(false);
               setCalendarKey((k) => k + 1);
+              recordActivity(); // Record streak!
             }}
           />
         </>
