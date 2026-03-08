@@ -86,32 +86,37 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
 
   return (
     <div className="px-4">
-      {/* Month nav */}
-      <div className="flex items-center justify-between mb-4">
-        <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition">
-          <ChevronLeft size={20} />
+      {/* Month nav — editorial style */}
+      <div className="flex items-center justify-between mb-5">
+        <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 rounded-full text-muted-foreground hover:text-gold hover:bg-gold/10 transition">
+          <ChevronLeft size={18} />
         </button>
-        <h2 className="text-base font-display font-bold text-foreground">
-          {format(currentMonth, 'MMMM yyyy')}
-        </h2>
-        <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition">
-          <ChevronRight size={20} />
+        <div className="text-center">
+          <h2 className="text-lg font-display font-bold tracking-wide text-foreground">
+            {format(currentMonth, 'MMMM')}
+          </h2>
+          <p className="text-[10px] font-body text-muted-foreground tracking-widest uppercase">
+            {format(currentMonth, 'yyyy')}
+          </p>
+        </div>
+        <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 rounded-full text-muted-foreground hover:text-gold hover:bg-gold/10 transition">
+          <ChevronRight size={18} />
         </button>
       </div>
 
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 gap-1 mb-1">
+      <div className="grid grid-cols-7 gap-1.5 mb-1.5">
         {WEEKDAYS.map(d => (
-          <div key={d} className="text-center text-xs font-body font-medium text-muted-foreground py-1">
+          <div key={d} className="text-center text-[10px] font-body font-semibold text-gold/60 tracking-wider uppercase py-1">
             {d}
           </div>
         ))}
       </div>
 
-      {/* Day grid */}
-      <div className="grid grid-cols-7 gap-1">
+      {/* Day grid — tall rectangles */}
+      <div className="grid grid-cols-7 gap-1.5">
         {Array.from({ length: firstDayOffset }).map((_, i) => (
-          <div key={`pad-${i}`} className="aspect-square" />
+          <div key={`pad-${i}`} className="aspect-[2/3]" />
         ))}
         {days.map(day => {
           const dayOutfits = getOutfitsForDay(day);
@@ -125,85 +130,127 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
               key={day.toISOString()}
               onClick={() => handleDayClick(day)}
               disabled={future}
-              className={`aspect-square rounded-lg overflow-hidden relative flex items-center justify-center text-xs font-body transition-all border-2
-                ${selected ? 'border-gold' : 'border-transparent'}
-                ${today && !hasOutfits ? 'ring-1 ring-gold/50' : ''}
-                ${future ? 'opacity-30 cursor-not-allowed' : 'hover:border-gold/30'}
-                ${hasOutfits ? '' : 'bg-secondary/50'}
+              className={`aspect-[2/3] rounded-xl overflow-hidden relative flex flex-col items-center justify-end transition-all
+                ${selected ? 'ring-2 ring-gold ring-offset-1 ring-offset-background' : ''}
+                ${future ? 'opacity-20 cursor-not-allowed' : 'hover:ring-1 hover:ring-gold/40'}
+                ${hasOutfits ? 'shadow-md' : 'bg-card/60 border border-border/50'}
               `}
             >
               {hasOutfits ? (
                 <>
-                  <img src={dayOutfits[0].image_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/25" />
-                  <span className="relative text-white font-semibold text-[11px] drop-shadow">{format(day, 'd')}</span>
-                  {dayOutfits.length > 1 && (
-                    <span className="absolute top-0.5 right-0.5 bg-gold text-background text-[8px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">
-                      {dayOutfits.length}
+                  <img
+                    src={dayOutfits[0].image_url}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {/* Gradient overlay for readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+                  {/* Date number */}
+                  <div className="relative w-full px-1 pb-1 flex items-end justify-between">
+                    <span className="text-white font-display font-bold text-[11px] drop-shadow-lg">
+                      {format(day, 'd')}
                     </span>
-                  )}
+                    {dayOutfits.length > 1 && (
+                      <span className="bg-gold text-background text-[7px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
+                        +{dayOutfits.length - 1}
+                      </span>
+                    )}
+                  </div>
                 </>
               ) : (
-                <span className={`${today ? 'text-gold font-bold' : 'text-muted-foreground'}`}>
-                  {format(day, 'd')}
-                </span>
+                <div className="flex flex-col items-center justify-center h-full w-full">
+                  <span className={`text-[11px] font-body ${today ? 'text-gold font-bold' : 'text-muted-foreground/60'}`}>
+                    {format(day, 'd')}
+                  </span>
+                  {today && (
+                    <div className="w-1 h-1 rounded-full bg-gold mt-0.5" />
+                  )}
+                </div>
               )}
             </button>
           );
         })}
       </div>
 
-      {/* Selected day detail */}
+      {/* Selected day detail panel */}
       {selectedDay && (
-        <div className="mt-4 rounded-xl bg-card border border-border p-3 animate-fade-in">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-body font-semibold text-foreground">
-              {format(selectedDay, 'EEEE, MMM d')}
-            </p>
+        <div className="mt-5 rounded-2xl bg-card border border-border/60 overflow-hidden animate-fade-in">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border/40">
+            <div>
+              <p className="text-sm font-display font-bold text-foreground">
+                {format(selectedDay, 'EEEE')}
+              </p>
+              <p className="text-[10px] font-body text-muted-foreground">
+                {format(selectedDay, 'MMMM d, yyyy')}
+              </p>
+            </div>
             {!isFuture(selectedDay) && (
               <button
                 onClick={() => onAddOutfit(selectedDay)}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gold/15 text-gold text-xs font-body font-semibold hover:bg-gold/25 transition"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold text-background text-xs font-body font-semibold hover:brightness-110 transition shadow-sm"
               >
-                <Plus size={14} /> Add Photo
+                <Plus size={13} /> Add
               </button>
             )}
           </div>
 
+          {/* Outfit gallery */}
           {selectedDayOutfits.length > 0 ? (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="p-3 space-y-3">
               {selectedDayOutfits.map(outfit => (
-                <div key={outfit.id} className="rounded-lg overflow-hidden bg-secondary/30 animate-fade-in">
-                  <div className="aspect-[3/4] overflow-hidden relative">
+                <div key={outfit.id} className="rounded-xl overflow-hidden bg-background/50 border border-border/30 animate-fade-in">
+                  <div className="aspect-[4/5] overflow-hidden relative">
                     <img src={outfit.image_url} alt="Outfit" className="w-full h-full object-cover" />
+                    {/* Visibility badge on image */}
+                    <div className="absolute top-2 left-2">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-body font-semibold backdrop-blur-md ${
+                        outfit.is_public
+                          ? 'bg-feroza/20 text-white border border-feroza/30'
+                          : 'bg-black/30 text-white/70 border border-white/10'
+                      }`}>
+                        {outfit.is_public ? <Eye size={9} /> : <EyeOff size={9} />}
+                        {outfit.is_public ? 'Public' : 'Only you'}
+                      </span>
+                    </div>
                   </div>
-                  <div className="p-2 flex items-center justify-between">
+
+                  {/* Actions bar */}
+                  <div className="px-3 py-2.5 flex items-center justify-between">
                     <button
                       onClick={() => handleToggleVisibility(outfit)}
-                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-body font-semibold transition ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-body font-semibold transition ${
                         outfit.is_public
-                          ? 'bg-feroza/15 text-feroza'
-                          : 'bg-muted text-muted-foreground'
+                          ? 'bg-feroza/15 text-feroza hover:bg-feroza/25'
+                          : 'bg-secondary text-muted-foreground hover:text-foreground'
                       }`}
                     >
-                      {outfit.is_public ? <Eye size={10} /> : <EyeOff size={10} />}
-                      {outfit.is_public ? 'Public' : 'Private'}
+                      {outfit.is_public ? (
+                        <><EyeOff size={12} /> Make Private</>
+                      ) : (
+                        <><Eye size={12} /> Share Publicly</>
+                      )}
                     </button>
                     <button
                       onClick={() => handleDelete(outfit.id)}
-                      className="p-1 rounded-lg hover:bg-rani/10 transition text-muted-foreground hover:text-rani"
+                      className="p-2 rounded-full hover:bg-rani/10 transition text-muted-foreground hover:text-rani"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={15} />
                     </button>
                   </div>
+
                   {outfit.notes && (
-                    <p className="px-2 pb-2 text-[10px] font-body text-muted-foreground truncate">{outfit.notes}</p>
+                    <p className="px-3 pb-2.5 text-[11px] font-body text-muted-foreground italic">"{outfit.notes}"</p>
                   )}
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-xs font-body text-muted-foreground">No outfits logged. Tap "Add Photo" to get started.</p>
+            <div className="py-8 text-center">
+              <p className="text-xs font-body text-muted-foreground">No outfits logged</p>
+              <p className="text-[10px] font-body text-muted-foreground/60 mt-0.5">Tap "Add" to capture today's look</p>
+            </div>
           )}
         </div>
       )}
