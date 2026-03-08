@@ -192,8 +192,10 @@ const OnboardingModal = ({ open, onComplete }: OnboardingModalProps) => {
           </div>
         )}
 
-        {/* Continue button right below content */}
-        <div className="w-full max-w-xs flex justify-end mt-20">
+        {/* Spacer to push button to bottom */}
+        <div className="flex-1" />
+        {/* Continue button at bottom right */}
+        <div className="w-full max-w-xs flex justify-end mb-8 self-end">
           <button
             type="button"
             onClick={(e) => {
