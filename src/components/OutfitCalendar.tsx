@@ -107,7 +107,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
       {/* Weekday headers */}
       <div className="grid grid-cols-7 gap-1.5 mb-1.5">
         {WEEKDAYS.map(d => (
-          <div key={d} className="text-center text-[10px] font-body font-semibold text-gold/60 tracking-wider uppercase py-1">
+          <div key={d} className="text-center text-[10px] font-body font-semibold text-primary/50 tracking-wider uppercase py-1">
             {d}
           </div>
         ))}
