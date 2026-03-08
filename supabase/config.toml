@@ -2,3 +2,6 @@ project_id = "desqsxxpoouqdmcqqwew"
 
 [functions.ai-stylist]
 verify_jwt = false
+
+[functions.generate-outfit-image]
+verify_jwt = false
