@@ -95,7 +95,7 @@ const UploadOutfitModal = ({ open, date, onClose, onUploaded }: UploadOutfitModa
         ) : (
           <button
             onClick={() => fileRef.current?.click()}
-            className="w-full aspect-[3/4] max-h-72 rounded-xl border-2 border-dashed border-border bg-secondary/30 flex flex-col items-center justify-center gap-2 mb-4 hover:border-gold/40 transition"
+            className="w-full aspect-[3/4] max-h-72 rounded-xl border-2 border-dashed border-border bg-secondary/30 flex flex-col items-center justify-center gap-2 mb-4 hover:border-primary/40 transition"
           >
             <Camera size={32} className="text-muted-foreground" />
             <span className="text-sm font-body text-muted-foreground">Tap to add outfit photo</span>
@@ -109,14 +109,14 @@ const UploadOutfitModal = ({ open, date, onClose, onUploaded }: UploadOutfitModa
           value={notes}
           onChange={e => setNotes(e.target.value)}
           placeholder="Add a note (optional)"
-          className="w-full px-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-gold transition mb-3"
+          className="w-full px-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition mb-3"
         />
 
         {/* Visibility toggle */}
         <button
           onClick={() => setIsPublic(!isPublic)}
           className={`flex items-center gap-2 px-3 py-2 rounded-lg w-full text-sm font-body font-medium mb-4 transition ${
-            isPublic ? 'bg-feroza/15 text-feroza' : 'bg-secondary text-muted-foreground'
+            isPublic ? 'bg-accent/15 text-accent' : 'bg-secondary text-muted-foreground'
           }`}
         >
           {isPublic ? <Eye size={16} /> : <EyeOff size={16} />}
@@ -127,7 +127,7 @@ const UploadOutfitModal = ({ open, date, onClose, onUploaded }: UploadOutfitModa
         <button
           onClick={handleUpload}
           disabled={!file || uploading}
-          className="w-full py-3 rounded-xl bg-gold text-background font-body font-semibold text-sm disabled:opacity-50 transition hover:brightness-110"
+          className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-body font-semibold text-sm disabled:opacity-50 transition hover:brightness-110"
         >
           {uploading ? 'Saving...' : 'Save Outfit'}
         </button>

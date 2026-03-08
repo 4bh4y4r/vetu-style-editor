@@ -142,13 +142,13 @@ const ProfilePage = () => {
       <div className="flex items-center gap-5 px-4 mb-2">
         <div className="relative flex-shrink-0">
           <img
-            src={profile?.avatar_url || `https://ui-avatars.com/api/?name=${displayName}&background=1A1A1A&color=D4A843`}
+            src={profile?.avatar_url || `https://ui-avatars.com/api/?name=${displayName}&background=F5E6F0&color=D4648A`}
             alt="Profile avatar"
-            className="w-20 h-20 rounded-full object-cover border-2 border-gold"
+            className="w-20 h-20 rounded-full object-cover border-2 border-primary/30 shadow-sm"
           />
           <button
             onClick={() => setShowUpload(true)}
-            className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-feroza text-white flex items-center justify-center border-2 border-background text-xs font-bold"
+            className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center border-2 border-background text-xs font-bold shadow-sm"
             aria-label="Add content"
           >
             <Plus size={14} />
@@ -189,7 +189,7 @@ const ProfilePage = () => {
               onClick={() => setTab(t.key)}
               className={`flex-1 flex items-center justify-center gap-1.5 pb-2.5 text-sm font-body font-medium transition-colors ${
                 tab === t.key
-                  ? 'text-gold border-b-2 border-gold'
+                  ? 'text-primary border-b-2 border-primary'
                   : 'text-muted-foreground'
               }`}
             >

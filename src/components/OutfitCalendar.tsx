@@ -88,7 +88,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
     <div className="px-4">
       {/* Month nav — editorial style */}
       <div className="flex items-center justify-between mb-5">
-        <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 rounded-full text-muted-foreground hover:text-gold hover:bg-gold/10 transition">
+        <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition">
           <ChevronLeft size={18} />
         </button>
         <div className="text-center">
@@ -99,7 +99,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
             {format(currentMonth, 'yyyy')}
           </p>
         </div>
-        <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 rounded-full text-muted-foreground hover:text-gold hover:bg-gold/10 transition">
+        <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition">
           <ChevronRight size={18} />
         </button>
       </div>
@@ -107,7 +107,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
       {/* Weekday headers */}
       <div className="grid grid-cols-7 gap-1.5 mb-1.5">
         {WEEKDAYS.map(d => (
-          <div key={d} className="text-center text-[10px] font-body font-semibold text-gold/60 tracking-wider uppercase py-1">
+          <div key={d} className="text-center text-[10px] font-body font-semibold text-primary/50 tracking-wider uppercase py-1">
             {d}
           </div>
         ))}
@@ -131,8 +131,8 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
               onClick={() => handleDayClick(day)}
               disabled={future}
               className={`aspect-[2/3] rounded-xl overflow-hidden relative flex flex-col items-center justify-end transition-all
-                ${selected ? 'ring-2 ring-gold ring-offset-1 ring-offset-background' : ''}
-                ${future ? 'opacity-20 cursor-not-allowed' : 'hover:ring-1 hover:ring-gold/40'}
+                ${selected ? 'ring-2 ring-primary ring-offset-1 ring-offset-background' : ''}
+                ${future ? 'opacity-20 cursor-not-allowed' : 'hover:ring-1 hover:ring-primary/40'}
                 ${hasOutfits ? 'shadow-md' : 'bg-card/60 border border-border/50'}
               `}
             >
@@ -152,7 +152,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
                       {format(day, 'd')}
                     </span>
                     {dayOutfits.length > 1 && (
-                      <span className="bg-gold text-background text-[7px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
+                      <span className="bg-primary text-primary-foreground text-[7px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5">
                         +{dayOutfits.length - 1}
                       </span>
                     )}
@@ -160,11 +160,11 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
                 </>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full w-full">
-                  <span className={`text-[11px] font-body ${today ? 'text-gold font-bold' : 'text-muted-foreground/60'}`}>
+                  <span className={`text-[11px] font-body ${today ? 'text-primary font-bold' : 'text-muted-foreground/60'}`}>
                     {format(day, 'd')}
                   </span>
                   {today && (
-                    <div className="w-1 h-1 rounded-full bg-gold mt-0.5" />
+                    <div className="w-1 h-1 rounded-full bg-primary mt-0.5" />
                   )}
                 </div>
               )}
@@ -189,7 +189,7 @@ const OutfitCalendar = ({ onAddOutfit }: OutfitCalendarProps) => {
             {!isFuture(selectedDay) && (
               <button
                 onClick={() => onAddOutfit(selectedDay)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold text-background text-xs font-body font-semibold hover:brightness-110 transition shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-body font-semibold hover:brightness-110 transition shadow-sm"
               >
                 <Plus size={13} /> Add
               </button>

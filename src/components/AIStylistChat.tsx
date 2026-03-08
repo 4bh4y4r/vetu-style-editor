@@ -110,7 +110,7 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <div className="w-16 h-16 rounded-full gradient-ai-soft flex items-center justify-center mb-4">
-              <Sparkles size={28} className="text-feroza" />
+              <Sparkles size={28} className="text-accent" />
             </div>
             <h3 className="text-base font-display font-bold text-foreground mb-1">AI Stylist</h3>
             <p className="text-xs font-body text-muted-foreground mb-6 max-w-[240px]">
@@ -140,12 +140,12 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
               <div
                 className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm font-body ${
                   msg.role === 'user'
-                    ? 'bg-feroza text-accent-foreground rounded-br-md'
+                    ? 'bg-primary text-primary-foreground rounded-br-md'
                     : 'bg-secondary text-secondary-foreground rounded-bl-md'
                 }`}
               >
                 {msg.role === 'assistant' ? (
-                  <div className="prose prose-sm prose-invert max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1">
+                  <div className="prose prose-sm max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1">
                     <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 ) : (
@@ -175,7 +175,7 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && sendMessage(input)}
           placeholder="Ask your AI stylist..."
-          className="flex-1 px-4 py-2.5 rounded-full bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-feroza transition"
+          className="flex-1 px-4 py-2.5 rounded-full bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition"
           disabled={isLoading}
         />
         <button
