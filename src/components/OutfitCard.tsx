@@ -21,7 +21,7 @@ const OutfitCard = ({ card, index = 0 }: OutfitCardProps) => {
   return (
     <>
       <div
-        className="masonry-item animate-fade-in rounded-lg overflow-hidden bg-card"
+        className="masonry-item animate-fade-in rounded-xl overflow-hidden bg-card shadow-sm border border-border/50"
         style={{ animationDelay: `${index * 60}ms` }}
       >
         <div className={`${heightMap[card.height]} w-full overflow-hidden`}>
@@ -37,7 +37,7 @@ const OutfitCard = ({ card, index = 0 }: OutfitCardProps) => {
             <img
               src={card.avatarUrl}
               alt={card.username}
-              className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+              className="w-6 h-6 rounded-full object-cover flex-shrink-0 ring-1 ring-border"
             />
             <span className="text-xs font-body text-muted-foreground truncate">{card.username}</span>
           </div>
@@ -47,7 +47,7 @@ const OutfitCard = ({ card, index = 0 }: OutfitCardProps) => {
               className="flex-shrink-0 p-1"
               aria-label="Save to board"
             >
-              <Bookmark size={16} className="text-gold hover:text-gold-light transition" />
+              <Bookmark size={16} className="text-marigold hover:text-marigold-light transition" />
             </button>
             <button
               onClick={() => setLiked(!liked)}
