@@ -6,7 +6,8 @@ interface ProfileHeaderProps {
   profile: Profile | null;
   displayName: string;
   wardrobeCount: number;
-  boardCount: number;
+  followersCount: number;
+  followingCount: number;
   onAddContent: () => void;
 }
 
