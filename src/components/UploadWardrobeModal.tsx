@@ -1,10 +1,9 @@
 import { useState, useRef } from 'react';
 import { X, Upload, Camera } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-
-const CATEGORIES = ['Tops', 'Bottoms', 'Dresses', 'Shoes', 'Accessories', 'Outerwear', 'Other'];
+import { WARDROBE_CATEGORIES } from '@/constants';
 
 interface UploadWardrobeModalProps {
   open: boolean;
@@ -16,7 +15,7 @@ const UploadWardrobeModal = ({ open, onClose, onUploaded }: UploadWardrobeModalP
   const { user } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [category, setCategory] = useState('Tops');
+  const [category, setCategory] = useState<string>(WARDROBE_CATEGORIES[0]);
   const [name, setName] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -40,7 +39,9 @@ const UploadWardrobeModal = ({ open, onClose, onUploaded }: UploadWardrobeModalP
       return;
     }
 
-    const { data: { publicUrl } } = supabase.storage.from('wardrobe').getPublicUrl(filePath);
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from('wardrobe').getPublicUrl(filePath);
 
     const { error: dbError } = await supabase.from('wardrobe_items').insert({
       user_id: user.id,
@@ -57,7 +58,7 @@ const UploadWardrobeModal = ({ open, onClose, onUploaded }: UploadWardrobeModalP
       setFile(null);
       setPreview(null);
       setName('');
-      setCategory('Tops');
+      setCategory(WARDROBE_CATEGORIES[0]);
       onUploaded();
       onClose();
     }
@@ -67,10 +68,7 @@ const UploadWardrobeModal = ({ open, onClose, onUploaded }: UploadWardrobeModalP
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 backdrop-blur-sm" onClick={onClose}>
-      <div
-        className="w-full max-w-lg bg-background rounded-t-2xl p-5 pb-8 animate-fade-in"
-        onClick={e => e.stopPropagation()}
-      >
+      <div className="w-full max-w-lg bg-background rounded-t-2xl p-5 pb-8 animate-fade-in" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-display font-bold text-foreground">Add to Wardrobe</h2>
           <button onClick={onClose} className="text-muted-foreground p-1">
@@ -103,21 +101,21 @@ const UploadWardrobeModal = ({ open, onClose, onUploaded }: UploadWardrobeModalP
           type="file"
           accept="image/*"
           className="hidden"
-          onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])}
+          onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
         />
 
         {/* Name */}
         <input
           type="text"
           value={name}
-          onChange={e => setName(e.target.value)}
+          onChange={(e) => setName(e.target.value)}
           placeholder="Item name (optional)"
           className="w-full px-4 py-2.5 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary transition mb-3"
         />
 
         {/* Category chips */}
         <div className="flex flex-wrap gap-2 mb-5">
-          {CATEGORIES.map(cat => (
+          {WARDROBE_CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setCategory(cat)}

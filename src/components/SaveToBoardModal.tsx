@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Check } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface Board {
@@ -25,9 +25,14 @@ const SaveToBoardModal = ({ open, imageUrl, title, onClose }: SaveToBoardModalPr
 
   useEffect(() => {
     if (!open || !user) return;
-    supabase.from('boards').select('id, name').eq('user_id', user.id)
+    supabase
+      .from('boards')
+      .select('id, name')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .then(({ data }) => { if (data) setBoards(data); });
+      .then(({ data }) => {
+        if (data) setBoards(data);
+      });
     setSaved(null);
   }, [open, user]);
 
@@ -50,12 +55,13 @@ const SaveToBoardModal = ({ open, imageUrl, title, onClose }: SaveToBoardModalPr
   const handleCreateAndSave = async () => {
     if (!user || !newBoardName.trim()) return;
     setCreating(true);
-    const { data } = await supabase.from('boards')
+    const { data } = await supabase
+      .from('boards')
       .insert({ user_id: user.id, name: newBoardName.trim() })
       .select('id, name')
       .single();
     if (data) {
-      setBoards(prev => [data, ...prev]);
+      setBoards((prev) => [data, ...prev]);
       setNewBoardName('');
       setCreating(false);
       await handleSave(data.id);
@@ -66,7 +72,7 @@ const SaveToBoardModal = ({ open, imageUrl, title, onClose }: SaveToBoardModalPr
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50" onClick={onClose}>
-      <div className="w-full max-w-lg bg-card rounded-t-2xl p-5 animate-fade-in max-h-[70vh] flex flex-col" onClick={e => e.stopPropagation()}>
+      <div className="w-full max-w-lg bg-card rounded-t-2xl p-5 animate-fade-in max-h-[70vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-display font-bold text-foreground">Save to Board</h2>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition">
@@ -79,7 +85,7 @@ const SaveToBoardModal = ({ open, imageUrl, title, onClose }: SaveToBoardModalPr
           <input
             type="text"
             value={newBoardName}
-            onChange={e => setNewBoardName(e.target.value)}
+            onChange={(e) => setNewBoardName(e.target.value)}
             placeholder="New board name..."
             className="flex-1 px-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary transition"
           />
@@ -94,7 +100,7 @@ const SaveToBoardModal = ({ open, imageUrl, title, onClose }: SaveToBoardModalPr
 
         {/* Board list */}
         <div className="overflow-y-auto flex-1 space-y-1">
-          {boards.map(board => (
+          {boards.map((board) => (
             <button
               key={board.id}
               onClick={() => handleSave(board.id)}
@@ -110,7 +116,9 @@ const SaveToBoardModal = ({ open, imageUrl, title, onClose }: SaveToBoardModalPr
             </button>
           ))}
           {boards.length === 0 && (
-            <p className="text-sm font-body text-muted-foreground text-center py-6">No boards yet. Create one above!</p>
+            <p className="text-sm font-body text-muted-foreground text-center py-6">
+              No boards yet. Create one above!
+            </p>
           )}
         </div>
       </div>

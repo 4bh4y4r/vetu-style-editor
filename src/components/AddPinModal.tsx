@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, ImagePlus } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface AddPinModalProps {
@@ -70,10 +70,7 @@ const AddPinModal = ({ open, boardId, onClose, onAdded }: AddPinModalProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50" onClick={onClose}>
-      <div
-        className="w-full max-w-lg bg-card rounded-t-2xl p-5 animate-fade-in"
-        onClick={e => e.stopPropagation()}
-      >
+      <div className="w-full max-w-lg bg-card rounded-t-2xl p-5 animate-fade-in" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-display font-bold text-foreground">Add Pin</h2>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition">
@@ -99,7 +96,11 @@ const AddPinModal = ({ open, boardId, onClose, onAdded }: AddPinModalProps) => {
           <input
             type="url"
             value={imageUrl}
-            onChange={e => { setImageUrl(e.target.value); setFile(null); setPreview(null); }}
+            onChange={(e) => {
+              setImageUrl(e.target.value);
+              setFile(null);
+              setPreview(null);
+            }}
             placeholder="https://example.com/image.jpg"
             className="w-full px-4 py-2.5 rounded-xl bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary transition"
           />
@@ -107,7 +108,7 @@ const AddPinModal = ({ open, boardId, onClose, onAdded }: AddPinModalProps) => {
           <input
             type="text"
             value={title}
-            onChange={e => setTitle(e.target.value)}
+            onChange={(e) => setTitle(e.target.value)}
             placeholder="Pin title (optional)"
             className="w-full px-4 py-2.5 rounded-xl bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary transition"
           />
