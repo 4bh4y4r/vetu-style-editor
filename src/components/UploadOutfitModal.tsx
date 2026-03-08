@@ -116,7 +116,7 @@ const UploadOutfitModal = ({ open, date, onClose, onUploaded }: UploadOutfitModa
         <button
           onClick={() => setIsPublic(!isPublic)}
           className={`flex items-center gap-2 px-3 py-2 rounded-lg w-full text-sm font-body font-medium mb-4 transition ${
-            isPublic ? 'bg-feroza/15 text-feroza' : 'bg-secondary text-muted-foreground'
+            isPublic ? 'bg-accent/15 text-accent' : 'bg-secondary text-muted-foreground'
           }`}
         >
           {isPublic ? <Eye size={16} /> : <EyeOff size={16} />}
