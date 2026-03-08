@@ -95,7 +95,7 @@ const UploadOutfitModal = ({ open, date, onClose, onUploaded }: UploadOutfitModa
         ) : (
           <button
             onClick={() => fileRef.current?.click()}
-            className="w-full aspect-[3/4] max-h-72 rounded-xl border-2 border-dashed border-border bg-secondary/30 flex flex-col items-center justify-center gap-2 mb-4 hover:border-gold/40 transition"
+            className="w-full aspect-[3/4] max-h-72 rounded-xl border-2 border-dashed border-border bg-secondary/30 flex flex-col items-center justify-center gap-2 mb-4 hover:border-primary/40 transition"
           >
             <Camera size={32} className="text-muted-foreground" />
             <span className="text-sm font-body text-muted-foreground">Tap to add outfit photo</span>
