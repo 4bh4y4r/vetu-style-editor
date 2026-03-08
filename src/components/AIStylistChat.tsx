@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Shirt } from 'lucide-react';
+import { Send, Sparkles, Shirt, ImageIcon, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 
@@ -13,9 +13,11 @@ interface WardrobeItem {
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  imageUrl?: string;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-stylist`;
+const IMAGE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-outfit-image`;
 
 const QUICK_PROMPTS = [
   "Suggest an outfit for a date night",
@@ -24,18 +26,74 @@ const QUICK_PROMPTS = [
   "Create a weekend casual look",
 ];
 
+const IMAGE_PROMPTS = [
+  "🎨 Generate a casual streetwear outfit",
+  "🎨 Generate an elegant evening look",
+  "🎨 Generate a boho summer outfit",
+];
+
 const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
+  const generateImage = async (prompt: string) => {
+    const cleanPrompt = prompt.replace(/^🎨\s*Generate\s*/i, '');
+    const userMsg: Message = { role: 'user', content: prompt };
+    setMessages(prev => [...prev, userMsg]);
+    setInput('');
+    setIsGeneratingImage(true);
+
+    try {
+      const resp = await fetch(IMAGE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ prompt: cleanPrompt }),
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to generate image');
+      }
+
+      const data = await resp.json();
+
+      if (data.imageUrl) {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: data.text || 'Here\'s your generated outfit! ✨',
+          imageUrl: data.imageUrl,
+        }]);
+      } else {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: data.text || data.error || 'Could not generate an image. Try a different description!',
+        }]);
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Image generation failed');
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
   const sendMessage = async (text: string) => {
-    if (!text.trim() || isLoading) return;
+    if (!text.trim() || isLoading || isGeneratingImage) return;
+
+    // Route image generation requests
+    if (text.startsWith('🎨')) {
+      return generateImage(text);
+    }
+
     const userMsg: Message = { role: 'user', content: text.trim() };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
@@ -62,7 +120,7 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({
-          messages: [...messages, userMsg],
+          messages: [...messages, userMsg].filter(m => !m.imageUrl).map(m => ({ role: m.role, content: m.content })),
           wardrobeItems: wardrobeItems.map(i => ({ category: i.category, name: i.name })),
         }),
       });
@@ -104,6 +162,8 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
     }
   };
 
+  const isBusy = isLoading || isGeneratingImage;
+
   return (
     <div className="flex flex-col h-[calc(100vh-280px)] px-4">
       <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pb-4">
@@ -113,10 +173,12 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
               <Sparkles size={28} className="text-accent" />
             </div>
             <h3 className="text-base font-display font-bold text-foreground mb-1">AI Stylist</h3>
-            <p className="text-xs font-body text-muted-foreground mb-6 max-w-[240px]">
-              Get outfit suggestions, styling advice, and fashion tips tailored to your wardrobe
+            <p className="text-xs font-body text-muted-foreground mb-4 max-w-[240px]">
+              Get outfit suggestions, styling advice, and AI-generated outfit images
             </p>
-            <div className="flex flex-wrap gap-2 justify-center max-w-sm">
+
+            <p className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-2">Ask a question</p>
+            <div className="flex flex-wrap gap-2 justify-center max-w-sm mb-4">
               {QUICK_PROMPTS.map(p => (
                 <button
                   key={p}
@@ -127,6 +189,20 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
                 </button>
               ))}
             </div>
+
+            <p className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-2">Generate an image</p>
+            <div className="flex flex-wrap gap-2 justify-center max-w-sm">
+              {IMAGE_PROMPTS.map(p => (
+                <button
+                  key={p}
+                  onClick={() => sendMessage(p)}
+                  className="px-3 py-2 rounded-full bg-accent/10 text-accent text-xs font-body hover:bg-accent/20 transition border border-accent/20"
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+
             {wardrobeItems.length > 0 && (
               <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground font-body">
                 <Shirt size={14} />
@@ -145,8 +221,17 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
                 }`}
               >
                 {msg.role === 'assistant' ? (
-                  <div className="prose prose-sm max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1">
-                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  <div>
+                    {msg.imageUrl && (
+                      <img
+                        src={msg.imageUrl}
+                        alt="AI generated outfit"
+                        className="w-full rounded-xl mb-2 max-h-80 object-cover"
+                      />
+                    )}
+                    <div className="prose prose-sm max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
                   </div>
                 ) : (
                   msg.content
@@ -154,6 +239,14 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
               </div>
             </div>
           ))
+        )}
+        {isGeneratingImage && (
+          <div className="flex justify-start">
+            <div className="bg-secondary rounded-2xl rounded-bl-md px-4 py-3 flex items-center gap-2">
+              <Loader2 size={16} className="animate-spin text-accent" />
+              <span className="text-xs font-body text-muted-foreground">Generating outfit image...</span>
+            </div>
+          </div>
         )}
         {isLoading && messages[messages.length - 1]?.role !== 'assistant' && (
           <div className="flex justify-start">
@@ -169,6 +262,17 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
       </div>
 
       <div className="flex items-center gap-2 py-3 border-t border-border">
+        <button
+          onClick={() => {
+            const prompt = window.prompt('Describe the outfit you want to generate:');
+            if (prompt) sendMessage(`🎨 Generate ${prompt}`);
+          }}
+          disabled={isBusy}
+          className="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center disabled:opacity-50 transition hover:bg-accent/20 flex-shrink-0"
+          aria-label="Generate outfit image"
+        >
+          <ImageIcon size={16} />
+        </button>
         <input
           type="text"
           value={input}
@@ -176,11 +280,11 @@ const AIStylistChat = ({ wardrobeItems }: { wardrobeItems: WardrobeItem[] }) => 
           onKeyDown={e => e.key === 'Enter' && sendMessage(input)}
           placeholder="Ask your AI stylist..."
           className="flex-1 px-4 py-2.5 rounded-full bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition"
-          disabled={isLoading}
+          disabled={isBusy}
         />
         <button
           onClick={() => sendMessage(input)}
-          disabled={!input.trim() || isLoading}
+          disabled={!input.trim() || isBusy}
           className="w-10 h-10 rounded-full gradient-ai text-accent-foreground flex items-center justify-center disabled:opacity-50 transition hover:opacity-90"
         >
           <Send size={16} />
