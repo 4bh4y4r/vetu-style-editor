@@ -2,6 +2,7 @@ import { Search, Shirt, Plus } from 'lucide-react';
 import { useState } from 'react';
 import type { WardrobeItem } from '@/types';
 import UploadWardrobeModal from '@/components/UploadWardrobeModal';
+import EditWardrobeModal from '@/components/EditWardrobeModal';
 
 interface ClosetTabProps {
   wardrobeItems: WardrobeItem[];
@@ -10,6 +11,7 @@ interface ClosetTabProps {
 
 const ClosetTab = ({ wardrobeItems, onRefresh }: ClosetTabProps) => {
   const [showUpload, setShowUpload] = useState(false);
+  const [editItem, setEditItem] = useState<WardrobeItem | null>(null);
   const [filter, setFilter] = useState('All');
   const [search, setSearch] = useState('');
 
@@ -54,7 +56,11 @@ const ClosetTab = ({ wardrobeItems, onRefresh }: ClosetTabProps) => {
       {/* Grid */}
       <div className="grid grid-cols-2 gap-3 px-4">
         {filtered.map((item) => (
-          <div key={item.id} className="rounded-lg overflow-hidden bg-card animate-fade-in">
+          <div
+            key={item.id}
+            className="rounded-lg overflow-hidden bg-card animate-fade-in cursor-pointer hover:ring-2 hover:ring-primary/40 transition"
+            onClick={() => setEditItem(item)}
+          >
             <div className="aspect-square overflow-hidden">
               <img
                 src={item.image_url}
@@ -70,6 +76,7 @@ const ClosetTab = ({ wardrobeItems, onRefresh }: ClosetTabProps) => {
               {item.name && (
                 <p className="text-xs font-body text-foreground mt-1 truncate">{item.name}</p>
               )}
+              <p className="text-[10px] font-body text-muted-foreground/60 mt-0.5">Tap to edit</p>
             </div>
           </div>
         ))}
@@ -102,6 +109,16 @@ const ClosetTab = ({ wardrobeItems, onRefresh }: ClosetTabProps) => {
         onUploaded={() => {
           onRefresh();
           setShowUpload(false);
+        }}
+      />
+
+      <EditWardrobeModal
+        open={!!editItem}
+        item={editItem}
+        onClose={() => setEditItem(null)}
+        onUpdated={() => {
+          onRefresh();
+          setEditItem(null);
         }}
       />
     </>

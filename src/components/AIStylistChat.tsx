@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Send, Sparkles, Shirt, ImageIcon, Loader2, MapPin, Calendar, Sun, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
@@ -27,14 +27,26 @@ interface BodyProfile {
 interface AIStylistChatProps {
   wardrobeItems: WardrobeItem[];
   bodyProfile?: BodyProfile | null;
+  initialMessages?: ChatMessage[];
+  conversationId?: string | null;
+  onNewConversation?: (firstMessage: string) => Promise<string | null>;
+  onSaveMessage?: (conversationId: string, msg: ChatMessage) => Promise<void>;
 }
 
-const AIStylistChat = ({ wardrobeItems, bodyProfile }: AIStylistChatProps) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+const AIStylistChat = ({
+  wardrobeItems,
+  bodyProfile,
+  initialMessages,
+  conversationId,
+  onNewConversation,
+  onSaveMessage,
+}: AIStylistChatProps) => {
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages || []);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [showContext, setShowContext] = useState(true);
+  const [activeConvId, setActiveConvId] = useState<string | null>(conversationId || null);
   const [styleContext, setStyleContext] = useState<StyleContext>({
     location: '',
     occasion: 'Casual',
@@ -43,22 +55,51 @@ const AIStylistChat = ({ wardrobeItems, bodyProfile }: AIStylistChatProps) => {
   });
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Sync when initialMessages change (loading a past conversation)
+  useEffect(() => {
+    if (initialMessages) setMessages(initialMessages);
+  }, [initialMessages]);
+
+  useEffect(() => {
+    setActiveConvId(conversationId || null);
+  }, [conversationId]);
+
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
-  // Hide context panel after first message
   useEffect(() => {
     if (messages.length > 0) setShowContext(false);
   }, [messages.length]);
+
+  const ensureConversation = async (firstMessage: string): Promise<string | null> => {
+    if (activeConvId) return activeConvId;
+    if (onNewConversation) {
+      const id = await onNewConversation(firstMessage);
+      if (id) setActiveConvId(id);
+      return id;
+    }
+    return null;
+  };
+
+  const persistMessage = async (msg: ChatMessage) => {
+    const convId = activeConvId;
+    if (convId && onSaveMessage) {
+      await onSaveMessage(convId, msg);
+    }
+  };
 
   // ─── Image generation ─────────────────────────────────────────
   const generateImage = async (prompt: string) => {
     const cleanPrompt = prompt.replace(/^🎨\s*Generate\s*/i, '');
     const userMsg: ChatMessage = { role: 'user', content: prompt };
+
+    const convId = await ensureConversation(prompt);
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setIsGeneratingImage(true);
+
+    if (convId && onSaveMessage) await onSaveMessage(convId, userMsg);
 
     try {
       const resp = await fetch(IMAGE_URL, {
@@ -76,17 +117,16 @@ const AIStylistChat = ({ wardrobeItems, bodyProfile }: AIStylistChatProps) => {
       }
 
       const data = await resp.json();
+      const assistantMsg: ChatMessage = {
+        role: 'assistant',
+        content: data.imageUrl
+          ? data.text || "Here's your generated outfit! ✨"
+          : data.text || data.error || 'Could not generate an image. Try a different description!',
+        imageUrl: data.imageUrl || undefined,
+      };
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: data.imageUrl
-            ? data.text || 'Here\'s your generated outfit! ✨'
-            : data.text || data.error || 'Could not generate an image. Try a different description!',
-          imageUrl: data.imageUrl || undefined,
-        },
-      ]);
+      setMessages((prev) => [...prev, assistantMsg]);
+      if (convId && onSaveMessage) await onSaveMessage(convId, assistantMsg);
     } catch (e: any) {
       toast.error(e.message || 'Image generation failed');
     } finally {
@@ -103,9 +143,13 @@ const AIStylistChat = ({ wardrobeItems, bodyProfile }: AIStylistChatProps) => {
     }
 
     const userMsg: ChatMessage = { role: 'user', content: text.trim() };
+    const convId = await ensureConversation(text.trim());
+
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
+
+    if (convId && onSaveMessage) await onSaveMessage(convId, userMsg);
 
     let assistantSoFar = '';
 
@@ -164,9 +208,14 @@ const AIStylistChat = ({ wardrobeItems, bodyProfile }: AIStylistChatProps) => {
             const content = parsed.choices?.[0]?.delta?.content;
             if (content) upsertAssistant(content);
           } catch {
-            /* partial JSON — wait for next chunk */
+            /* partial JSON */
           }
         }
+      }
+
+      // Save final assistant message
+      if (convId && onSaveMessage && assistantSoFar) {
+        await onSaveMessage(convId, { role: 'assistant', content: assistantSoFar });
       }
     } catch (e: any) {
       toast.error(e.message || 'Something went wrong');
@@ -193,7 +242,9 @@ const AIStylistChat = ({ wardrobeItems, bodyProfile }: AIStylistChatProps) => {
         {messages.length === 0 ? (
           <EmptyState wardrobeCount={wardrobeItems.length} onSend={sendMessage} />
         ) : (
-          messages.map((msg, i) => <MessageBubble key={i} message={msg} />)
+          messages.map((msg, i) => (
+            <MessageBubble key={i} message={msg} wardrobeItems={wardrobeItems} />
+          ))
         )}
 
         {isGeneratingImage && <ImageLoadingIndicator />}
@@ -248,12 +299,7 @@ const ContextPanel = ({
   onToggle: () => void;
 }) => {
   const hasContext = styleContext.location || styleContext.eventType;
-  const summary = [
-    styleContext.location,
-    styleContext.occasion,
-    styleContext.eventType,
-    styleContext.comfort,
-  ]
+  const summary = [styleContext.location, styleContext.occasion, styleContext.eventType, styleContext.comfort]
     .filter(Boolean)
     .join(' · ');
 
@@ -267,9 +313,7 @@ const ContextPanel = ({
           <Sun size={14} className="text-accent" />
           Style Context
           {!expanded && hasContext && (
-            <span className="text-muted-foreground font-normal ml-1 truncate max-w-[180px]">
-              — {summary}
-            </span>
+            <span className="text-muted-foreground font-normal ml-1 truncate max-w-[180px]">— {summary}</span>
           )}
         </span>
         {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -277,76 +321,31 @@ const ContextPanel = ({
 
       {expanded && (
         <div className="px-3 pb-3 space-y-3">
-          {/* Location */}
           <div>
             <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">
-              <MapPin size={10} className="inline mr-1" />
-              Location / City
+              <MapPin size={10} className="inline mr-1" />Location / City
             </label>
-            <input
-              type="text"
-              value={styleContext.location}
-              onChange={(e) => onChange({ ...styleContext, location: e.target.value })}
-              placeholder="e.g. Mumbai, New York, London"
-              className="w-full px-3 py-2 rounded-lg bg-background text-foreground text-xs font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition"
-            />
+            <input type="text" value={styleContext.location} onChange={(e) => onChange({ ...styleContext, location: e.target.value })} placeholder="e.g. Mumbai, New York, London" className="w-full px-3 py-2 rounded-lg bg-background text-foreground text-xs font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition" />
           </div>
-
-          {/* Occasion */}
           <div>
             <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
-              <Calendar size={10} className="inline mr-1" />
-              Occasion
+              <Calendar size={10} className="inline mr-1" />Occasion
             </label>
             <div className="flex flex-wrap gap-1.5">
               {OCCASIONS.map((o) => (
-                <button
-                  key={o}
-                  onClick={() => onChange({ ...styleContext, occasion: o })}
-                  className={`px-2.5 py-1.5 rounded-full text-[11px] font-body font-medium transition ${
-                    styleContext.occasion === o
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-background text-muted-foreground hover:bg-muted'
-                  }`}
-                >
-                  {o}
-                </button>
+                <button key={o} onClick={() => onChange({ ...styleContext, occasion: o })} className={`px-2.5 py-1.5 rounded-full text-[11px] font-body font-medium transition ${styleContext.occasion === o ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground hover:bg-muted'}`}>{o}</button>
               ))}
             </div>
           </div>
-
-          {/* Event details */}
           <div>
-            <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">
-              Event Details (optional)
-            </label>
-            <input
-              type="text"
-              value={styleContext.eventType}
-              onChange={(e) => onChange({ ...styleContext, eventType: e.target.value })}
-              placeholder="e.g. outdoor brunch, evening gala, beach party"
-              className="w-full px-3 py-2 rounded-lg bg-background text-foreground text-xs font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition"
-            />
+            <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Event Details (optional)</label>
+            <input type="text" value={styleContext.eventType} onChange={(e) => onChange({ ...styleContext, eventType: e.target.value })} placeholder="e.g. outdoor brunch, evening gala, beach party" className="w-full px-3 py-2 rounded-lg bg-background text-foreground text-xs font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition" />
           </div>
-
-          {/* Comfort preference */}
           <div>
-            <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
-              Comfort vs Style
-            </label>
+            <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Comfort vs Style</label>
             <div className="flex gap-1.5">
               {COMFORT_LEVELS.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => onChange({ ...styleContext, comfort: c })}
-                  className={`flex-1 px-2 py-1.5 rounded-lg text-[11px] font-body font-medium transition ${
-                    styleContext.comfort === c
-                      ? 'bg-accent text-accent-foreground'
-                      : 'bg-background text-muted-foreground hover:bg-muted'
-                  }`}
-                >
-                  {c}
-                </button>
+                <button key={c} onClick={() => onChange({ ...styleContext, comfort: c })} className={`flex-1 px-2 py-1.5 rounded-lg text-[11px] font-body font-medium transition ${styleContext.comfort === c ? 'bg-accent text-accent-foreground' : 'bg-background text-muted-foreground hover:bg-muted'}`}>{c}</button>
               ))}
             </div>
           </div>
@@ -358,13 +357,7 @@ const ContextPanel = ({
 
 // ─── Sub-components ──────────────────────────────────────────────
 
-const EmptyState = ({
-  wardrobeCount,
-  onSend,
-}: {
-  wardrobeCount: number;
-  onSend: (text: string) => void;
-}) => (
+const EmptyState = ({ wardrobeCount, onSend }: { wardrobeCount: number; onSend: (text: string) => void }) => (
   <div className="flex flex-col items-center justify-center h-full text-center px-2">
     <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center mb-3">
       <Sparkles size={24} className="text-foreground" />
@@ -373,33 +366,18 @@ const EmptyState = ({
     <p className="text-xs font-body text-muted-foreground mb-4 max-w-[240px]">
       Set your context above, then ask for personalized outfit advice based on weather, occasion & comfort
     </p>
-
     <SectionLabel>Ask a question</SectionLabel>
     <div className="flex flex-wrap gap-2 justify-center max-w-sm mb-4">
       {AI_QUICK_PROMPTS.map((p) => (
-        <button
-          key={p}
-          onClick={() => onSend(p)}
-          className="px-3 py-2 rounded-full bg-secondary text-secondary-foreground text-xs font-body hover:bg-muted transition"
-        >
-          {p}
-        </button>
+        <button key={p} onClick={() => onSend(p)} className="px-3 py-2 rounded-full bg-secondary text-secondary-foreground text-xs font-body hover:bg-muted transition">{p}</button>
       ))}
     </div>
-
     <SectionLabel>Generate an image</SectionLabel>
     <div className="flex flex-wrap gap-1.5 justify-center max-w-sm">
       {AI_IMAGE_PROMPTS.map((p) => (
-        <button
-          key={p}
-          onClick={() => onSend(p)}
-          className="px-3 py-2 rounded-full bg-secondary text-foreground text-xs font-body hover:bg-muted transition border border-border"
-        >
-          {p}
-        </button>
+        <button key={p} onClick={() => onSend(p)} className="px-3 py-2 rounded-full bg-secondary text-foreground text-xs font-body hover:bg-muted transition border border-border">{p}</button>
       ))}
     </div>
-
     {wardrobeCount > 0 && (
       <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground font-body">
         <Shirt size={14} />
@@ -410,39 +388,69 @@ const EmptyState = ({
 );
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <p className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-    {children}
-  </p>
+  <p className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-2">{children}</p>
 );
 
-const MessageBubble = ({ message }: { message: ChatMessage }) => (
-  <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-    <div
-      className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm font-body ${
-        message.role === 'user'
-          ? 'bg-primary text-primary-foreground rounded-br-md'
-          : 'bg-secondary text-secondary-foreground rounded-bl-md'
-      }`}
-    >
-      {message.role === 'assistant' ? (
-        <div>
-          {message.imageUrl && (
-            <img
-              src={message.imageUrl}
-              alt="AI generated outfit"
-              className="w-full rounded-xl mb-2 max-h-80 object-cover"
-            />
-          )}
-          <div className="prose prose-sm max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1">
-            <ReactMarkdown>{message.content}</ReactMarkdown>
+// ─── Message Bubble with closet collage + highlighted tips ───────
+
+const MessageBubble = ({ message, wardrobeItems }: { message: ChatMessage; wardrobeItems: WardrobeItem[] }) => {
+  // Find mentioned wardrobe items in assistant messages
+  const matchedItems = useMemo(() => {
+    if (message.role !== 'assistant' || !wardrobeItems.length) return [];
+    const content = message.content.toLowerCase();
+    return wardrobeItems.filter((item) => {
+      const nameMatch = item.name && content.includes(item.name.toLowerCase());
+      const catMatch = content.includes(item.category.toLowerCase());
+      return nameMatch || catMatch;
+    }).slice(0, 6); // Max 6 items in collage
+  }, [message, wardrobeItems]);
+
+  return (
+    <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+      <div
+        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm font-body ${
+          message.role === 'user'
+            ? 'bg-primary text-primary-foreground rounded-br-md'
+            : 'bg-secondary text-secondary-foreground rounded-bl-md'
+        }`}
+      >
+        {message.role === 'assistant' ? (
+          <div>
+            {message.imageUrl && (
+              <img src={message.imageUrl} alt="AI generated outfit" className="w-full rounded-xl mb-2 max-h-80 object-cover" />
+            )}
+
+            {/* Closet collage */}
+            {matchedItems.length > 0 && (
+              <div className="mb-3">
+                <p className="text-[10px] font-body font-semibold text-primary uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                  <Shirt size={10} /> From your closet
+                </p>
+                <div className={`grid gap-1.5 ${matchedItems.length === 1 ? 'grid-cols-1' : matchedItems.length <= 4 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                  {matchedItems.map((item) => (
+                    <div key={item.id} className="rounded-lg overflow-hidden border-2 border-primary/30">
+                      <img src={item.image_url} alt={item.name || item.category} className="w-full aspect-square object-cover" />
+                      <div className="px-1.5 py-1 bg-primary/10">
+                        <p className="text-[9px] font-body font-medium text-foreground truncate">{item.name || item.category}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Styled markdown with highlighted tips */}
+            <div className="prose prose-sm max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1 [&_strong]:text-primary [&_strong]:font-bold [&_em]:text-accent [&_li]:marker:text-primary [&_h1]:text-primary [&_h2]:text-primary [&_h3]:text-primary [&_h3]:text-xs [&_h3]:mt-2 [&_h2]:text-sm [&_h2]:mt-2 [&_blockquote]:border-l-primary [&_blockquote]:bg-primary/5 [&_blockquote]:rounded-r-lg [&_blockquote]:py-1 [&_blockquote]:px-3 [&_blockquote]:text-xs [&_blockquote]:italic">
+              <ReactMarkdown>{message.content}</ReactMarkdown>
+            </div>
           </div>
-        </div>
-      ) : (
-        message.content
-      )}
+        ) : (
+          message.content
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ImageLoadingIndicator = () => (
   <div className="flex justify-start">
