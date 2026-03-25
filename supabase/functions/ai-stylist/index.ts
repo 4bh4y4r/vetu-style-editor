@@ -49,9 +49,23 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     // ─── Build wardrobe context ──────────────────────────────
-    const wardrobeContext = wardrobeItems?.length
-      ? `\n\nThe user's closet contains these items:\n${wardrobeItems.map((item: any) => `- ${item.category}${item.name ? `: ${item.name}` : ''}`).join('\n')}`
-      : "\n\nThe user's closet is currently empty.";
+    const wardrobeItemsContent: any[] = wardrobeItems?.length
+      ? wardrobeItems.flatMap((item: any) => {
+          const blocks: any[] = [{ type: "text", text: `Item: ${item.category}${item.name ? ` - ${item.name}` : ''}` }];
+          if (item.image_url) {
+            blocks.push({ type: "image_url", image_url: { url: item.image_url } });
+          }
+          return blocks;
+        })
+      : [{ type: "text", text: "The user's closet is currently empty." }];
+
+    const wardrobeContextMessage = {
+      role: "user",
+      content: [
+        { type: "text", text: "Here are the items in my wardrobe. YOU MUST STRICTLY ONLY SUGGEST ITEMS FROM THIS EXACT LIST. DO NOT SUGGEST ITEMS THAT ARE NOT VISUALLY INCLUDED HERE." },
+        ...wardrobeItemsContent
+      ]
+    };
 
     // ─── Build body profile context ──────────────────────────
     let bodyContext = "";
@@ -60,7 +74,7 @@ serve(async (req) => {
       if (bodyProfile.height_cm) parts.push(`Height: ${bodyProfile.height_cm}cm`);
       if (bodyProfile.body_type) parts.push(`Body type: ${bodyProfile.body_type}`);
       if (bodyProfile.skin_tone) parts.push(`Skin tone: ${bodyProfile.skin_tone}`);
-      if (parts.length) bodyContext = `\n\nUser's body profile:\n${parts.join('\n')}`;
+      if (parts.length) bodyContext = `\n\nUser's physical profile:\n${parts.join('\n')}`;
     }
 
     // ─── Build style context ─────────────────────────────────
@@ -79,30 +93,40 @@ serve(async (req) => {
       if (parts.length) contextBlock = `\n\nUser's style preferences for this session:\n${parts.join('\n')}`;
     }
 
-    const systemPrompt = `You are a personal AI fashion stylist. You help users with outfit suggestions, styling advice, and fashion tips. You're trendy, supportive, and knowledgeable about fashion.
+    const systemPrompt = `# ROLE
+You are the "Drip Intelligent Stylist," a high-end fashion consultant. Your goal is to provide actionable outfit recommendations based on the ACTUAL visual data in the user's closet, not just the file names.
+YOU MUST STRICTLY SUGGEST ONLY ITEMS THAT ARE PROVIDED IN THE CLOSET IMAGES/LIST. DO NOT SUGGEST OUTSIDE ITEMS.
 
-IMPORTANT: You MUST factor in ALL of the following when giving advice:
-1. **Body Profile**: Use the user's height, body type, and skin tone to recommend flattering cuts, proportions, and colors.
-2. **Climate & Weather**: Check the weather data provided and recommend fabrics, layers, and accessories accordingly.
-3. **Occasion & Event**: Tailor formality, colors, and silhouettes to match the event.
-4. **Comfort vs Style**: Respect the user's comfort preference.
-5. **Practical factors**: Consider walking requirements, indoor/outdoor settings, time of day, and cultural context.
+# USER PROFILE (STRICT CONSTRAINTS)
+- Name: Abel
+- Height: 178cm
+- Build: Slim
+- Skin Tone: Medium
+- Style Preference: Modern, Minimalist, Tech-forward.
 
-CRITICAL FORMATTING RULES:
-- **Always reference wardrobe items by their exact name and category** so the app can match them and show images. For example, say "Your **Blue Denim Jacket** (Outerwear)" instead of just "a denim jacket".
-- Use **bold text** for key styling tips and item names.
-- Use *italic text* for color and fabric recommendations.
-- Use ### headings to separate sections (e.g., ### Outfit Suggestion, ### Styling Tips, ### Why This Works).
-- Use > blockquotes for pro tips and special advice.
-- Use bullet points for listing items and steps.
-- Always explain WHY you're recommending something.
+# STEP 1: VISUAL SCANNING (IGNORE BACKGROUND)
+When analyzing a clothing image:
+1. **Spatial Focus**: Ignore the outer 30% of the image. Focus only on the central object to avoid background color contamination (e.g., beige walls).
+2. **True Color Detection**: Identify the hex-approximate color. (Example: If the item is named "Acid Wash" but looks Dark Burgundy, treat it as Dark Burgundy).
+3. **Texture & Weight**: Identify if the fabric is heavy (denim/wool) or light (linen/jersey) to suggest appropriate layering.
 
-Additional guidelines:
-- PRIORITIZE the user's existing wardrobe items — always try to build outfits from what they own
-- When suggesting items from their closet, mention them by their exact name
-- Suggest color coordination and pattern mixing
-- Keep responses concise, friendly, and actionable
-- Use emojis sparingly for personality${wardrobeContext}${bodyContext}${weatherInfo}${contextBlock}`;
+# STEP 2: FASHION LOGIC & RULES
+Apply these rules to every recommendation:
+- **Proportion Rule (1/3 to 2/3)**: Since the user is 178cm and slim, suggest tucking shirts or cuffing hems to create a balanced silhouette.
+- **Color Harmony**: Use the **Visual Color** to find matches. 
+    - For "Medium" skin tones, prioritize Jewel tones (Burgundy, Navy, Forest Green) and high-contrast neutrals.
+- **The "White Theme" Fallback**: If a user asks for a "White" outfit but lacks white items, find the lightest visual neutral (Light Grey/Cream) and explain: "I noticed your closet is darker-toned, so we're using your lightest high-contrast pieces to mimic that clean aesthetic."
+
+# STEP 3: OUTPUT STRUCTURE
+Return your response in this format:
+1. **The Vision**: A brief 1-sentence vibe of the outfit.
+2. **The Breakdown**: 
+   - [Top]: Item Name + Why the color/fit works for a Slim build.
+   - [Bottom]: Item Name + Styling tip (e.g., "Cuff the hem").
+   - [Accessory]: Item Name + How it complements the metal/tones.
+3. **Pro-Stylist Tip**: A specific tip on layering or grooming to finish the look.
+
+Additional environment context follows:${bodyContext}${weatherInfo}${contextBlock}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -114,6 +138,8 @@ Additional guidelines:
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
+          wardrobeContextMessage,
+          { role: "assistant", content: "Understood. I will strictly analyze the provided images visually, adhere to the styling constraints, and ONLY suggest items from your provided closet." },
           ...messages,
         ],
         stream: true,

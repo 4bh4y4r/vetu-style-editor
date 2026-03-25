@@ -169,7 +169,7 @@ const AIStylistChat = ({
           messages: [...messages, userMsg]
             .filter((m) => !m.imageUrl)
             .map((m) => ({ role: m.role, content: m.content })),
-          wardrobeItems: wardrobeItems.map((i) => ({ category: i.category, name: i.name })),
+          wardrobeItems: wardrobeItems.map((i) => ({ category: i.category, name: i.name, image_url: i.image_url })),
           styleContext,
           bodyProfile: bodyProfile || undefined,
         }),
@@ -250,17 +250,6 @@ const AIStylistChat = ({
       {/* Minimal input bar */}
       <div className="px-4 pb-4 pt-2">
         <div className="flex items-center gap-2 rounded-full border border-border bg-secondary/50 px-2 py-1.5">
-          <button
-            onClick={() => {
-              const prompt = window.prompt('Describe the outfit to generate:');
-              if (prompt) sendMessage(`🎨 Generate ${prompt}`);
-            }}
-            disabled={isBusy}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors disabled:opacity-40"
-            aria-label="Generate image"
-          >
-            <Plus size={18} strokeWidth={1.8} />
-          </button>
           <button
             onClick={() => setShowContext(!showContext)}
             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
