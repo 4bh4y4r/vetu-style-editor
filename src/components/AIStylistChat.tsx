@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { Send, Sparkles, Shirt, ImageIcon, Loader2, MapPin, Calendar, Sun, ChevronDown, ChevronUp } from 'lucide-react';
+import { Send, Sparkles, Shirt, ImageIcon, Loader2, Plus, SlidersHorizontal, MapPin, Calendar, Sun, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import type { WardrobeItem, ChatMessage } from '@/types';
@@ -45,7 +45,7 @@ const AIStylistChat = ({
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [showContext, setShowContext] = useState(true);
+  const [showContext, setShowContext] = useState(false);
   const [activeConvId, setActiveConvId] = useState<string | null>(conversationId || null);
   const [styleContext, setStyleContext] = useState<StyleContext>({
     location: '',
@@ -55,7 +55,6 @@ const AIStylistChat = ({
   });
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Sync when initialMessages change (loading a past conversation)
   useEffect(() => {
     if (initialMessages) setMessages(initialMessages);
   }, [initialMessages]);
@@ -67,10 +66,6 @@ const AIStylistChat = ({
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
-
-  useEffect(() => {
-    if (messages.length > 0) setShowContext(false);
-  }, [messages.length]);
 
   const ensureConversation = async (firstMessage: string): Promise<string | null> => {
     if (activeConvId) return activeConvId;
@@ -89,7 +84,6 @@ const AIStylistChat = ({
     }
   };
 
-  // ─── Image generation ─────────────────────────────────────────
   const generateImage = async (prompt: string) => {
     const cleanPrompt = prompt.replace(/^🎨\s*Generate\s*/i, '');
     const userMsg: ChatMessage = { role: 'user', content: prompt };
@@ -120,7 +114,7 @@ const AIStylistChat = ({
       const assistantMsg: ChatMessage = {
         role: 'assistant',
         content: data.imageUrl
-          ? data.text || "Here's your generated outfit! ✨"
+          ? data.text || "Here's your generated outfit!"
           : data.text || data.error || 'Could not generate an image. Try a different description!',
         imageUrl: data.imageUrl || undefined,
       };
@@ -134,7 +128,6 @@ const AIStylistChat = ({
     }
   };
 
-  // ─── Text chat (streaming) ────────────────────────────────────
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading || isGeneratingImage) return;
 
@@ -148,6 +141,7 @@ const AIStylistChat = ({
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
+    setShowContext(false);
 
     if (convId && onSaveMessage) await onSaveMessage(convId, userMsg);
 
@@ -213,7 +207,6 @@ const AIStylistChat = ({
         }
       }
 
-      // Save final assistant message
       if (convId && onSaveMessage && assistantSoFar) {
         await onSaveMessage(convId, { role: 'assistant', content: assistantSoFar });
       }
@@ -228,58 +221,73 @@ const AIStylistChat = ({
   const isBusy = isLoading || isGeneratingImage;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-240px)] px-3">
-      {/* ─── Context panel ──────────────────────────────────── */}
-      <ContextPanel
-        styleContext={styleContext}
-        onChange={setStyleContext}
-        expanded={showContext}
-        onToggle={() => setShowContext(!showContext)}
-      />
-
-      {/* ─── Messages area ────────────────────────────────────── */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pb-4">
+    <div className="flex flex-col h-full">
+      {/* Messages area */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pb-2">
         {messages.length === 0 ? (
           <EmptyState wardrobeCount={wardrobeItems.length} onSend={sendMessage} />
         ) : (
-          messages.map((msg, i) => (
-            <MessageBubble key={i} message={msg} wardrobeItems={wardrobeItems} />
-          ))
+          <div className="space-y-4 py-4">
+            {messages.map((msg, i) => (
+              <MessageBubble key={i} message={msg} wardrobeItems={wardrobeItems} />
+            ))}
+          </div>
         )}
 
         {isGeneratingImage && <ImageLoadingIndicator />}
         {isLoading && messages[messages.length - 1]?.role !== 'assistant' && <TypingIndicator />}
       </div>
 
-      {/* ─── Input bar ────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 py-3 border-t border-border">
-        <button
-          onClick={() => {
-            const prompt = window.prompt('Describe the outfit you want to generate:');
-            if (prompt) sendMessage(`🎨 Generate ${prompt}`);
-          }}
-          disabled={isBusy}
-          className="w-10 h-10 rounded-full bg-secondary text-foreground flex items-center justify-center disabled:opacity-50 transition hover:bg-muted flex-shrink-0"
-          aria-label="Generate outfit image"
-        >
-          <ImageIcon size={16} />
-        </button>
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && sendMessage(input)}
-          placeholder="Ask your AI stylist..."
-          className="flex-1 px-4 py-2.5 rounded-full bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition"
-          disabled={isBusy}
+      {/* Context panel (slides up from input) */}
+      {showContext && (
+        <ContextPanel
+          styleContext={styleContext}
+          onChange={setStyleContext}
+          onClose={() => setShowContext(false)}
         />
-        <button
-          onClick={() => sendMessage(input)}
-          disabled={!input.trim() || isBusy}
-          className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-50 transition hover:opacity-90"
-        >
-          <Send size={16} />
-        </button>
+      )}
+
+      {/* Minimal input bar */}
+      <div className="px-4 pb-4 pt-2">
+        <div className="flex items-center gap-2 rounded-full border border-border bg-secondary/50 px-2 py-1.5">
+          <button
+            onClick={() => {
+              const prompt = window.prompt('Describe the outfit to generate:');
+              if (prompt) sendMessage(`🎨 Generate ${prompt}`);
+            }}
+            disabled={isBusy}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors disabled:opacity-40"
+            aria-label="Generate image"
+          >
+            <Plus size={18} strokeWidth={1.8} />
+          </button>
+          <button
+            onClick={() => setShowContext(!showContext)}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+              showContext ? 'text-foreground bg-secondary' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+            }`}
+            aria-label="Style context"
+          >
+            <SlidersHorizontal size={16} strokeWidth={1.8} />
+          </button>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && sendMessage(input)}
+            placeholder="Ask anything"
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 outline-none py-1"
+            disabled={isBusy}
+          />
+          <button
+            onClick={() => sendMessage(input)}
+            disabled={!input.trim() || isBusy}
+            className="w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center disabled:opacity-30 transition-opacity"
+            aria-label="Send"
+          >
+            <Send size={14} strokeWidth={2} />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -290,148 +298,167 @@ const AIStylistChat = ({
 const ContextPanel = ({
   styleContext,
   onChange,
-  expanded,
-  onToggle,
+  onClose,
 }: {
   styleContext: StyleContext;
   onChange: (ctx: StyleContext) => void;
-  expanded: boolean;
-  onToggle: () => void;
-}) => {
-  const hasContext = styleContext.location || styleContext.eventType;
-  const summary = [styleContext.location, styleContext.occasion, styleContext.eventType, styleContext.comfort]
-    .filter(Boolean)
-    .join(' · ');
-
-  return (
-    <div className="mb-3 rounded-xl border border-border bg-secondary/50 overflow-hidden">
-      <button
-        onClick={onToggle}
-        className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-body font-semibold text-foreground"
-      >
-        <span className="flex items-center gap-1.5">
-          <Sun size={14} className="text-accent" />
-          Style Context
-          {!expanded && hasContext && (
-            <span className="text-muted-foreground font-normal ml-1 truncate max-w-[180px]">— {summary}</span>
-          )}
-        </span>
-        {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+  onClose: () => void;
+}) => (
+  <div className="mx-4 mb-2 rounded-2xl border border-border bg-secondary/40 overflow-hidden">
+    <div className="flex items-center justify-between px-4 py-2.5">
+      <span className="text-xs font-medium text-foreground flex items-center gap-1.5">
+        <Sun size={13} className="text-muted-foreground" />
+        Style Context
+      </span>
+      <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
+        <ChevronUp size={14} />
       </button>
-
-      {expanded && (
-        <div className="px-3 pb-3 space-y-3">
-          <div>
-            <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">
-              <MapPin size={10} className="inline mr-1" />Location / City
-            </label>
-            <input type="text" value={styleContext.location} onChange={(e) => onChange({ ...styleContext, location: e.target.value })} placeholder="e.g. Mumbai, New York, London" className="w-full px-3 py-2 rounded-lg bg-background text-foreground text-xs font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition" />
-          </div>
-          <div>
-            <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
-              <Calendar size={10} className="inline mr-1" />Occasion
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {OCCASIONS.map((o) => (
-                <button key={o} onClick={() => onChange({ ...styleContext, occasion: o })} className={`px-2.5 py-1.5 rounded-full text-[11px] font-body font-medium transition ${styleContext.occasion === o ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground hover:bg-muted'}`}>{o}</button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Event Details (optional)</label>
-            <input type="text" value={styleContext.eventType} onChange={(e) => onChange({ ...styleContext, eventType: e.target.value })} placeholder="e.g. outdoor brunch, evening gala, beach party" className="w-full px-3 py-2 rounded-lg bg-background text-foreground text-xs font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition" />
-          </div>
-          <div>
-            <label className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Comfort vs Style</label>
-            <div className="flex gap-1.5">
-              {COMFORT_LEVELS.map((c) => (
-                <button key={c} onClick={() => onChange({ ...styleContext, comfort: c })} className={`flex-1 px-2 py-1.5 rounded-lg text-[11px] font-body font-medium transition ${styleContext.comfort === c ? 'bg-accent text-accent-foreground' : 'bg-background text-muted-foreground hover:bg-muted'}`}>{c}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
-  );
-};
-
-// ─── Sub-components ──────────────────────────────────────────────
-
-const EmptyState = ({ wardrobeCount, onSend }: { wardrobeCount: number; onSend: (text: string) => void }) => (
-  <div className="flex flex-col items-center justify-center h-full text-center px-2">
-    <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center mb-3">
-      <Sparkles size={24} className="text-foreground" />
-    </div>
-    <h3 className="text-base font-display font-bold text-foreground mb-1">AI Stylist</h3>
-    <p className="text-xs font-body text-muted-foreground mb-4 max-w-[240px]">
-      Set your context above, then ask for personalized outfit advice based on weather, occasion & comfort
-    </p>
-    <SectionLabel>Ask a question</SectionLabel>
-    <div className="flex flex-wrap gap-2 justify-center max-w-sm mb-4">
-      {AI_QUICK_PROMPTS.map((p) => (
-        <button key={p} onClick={() => onSend(p)} className="px-3 py-2 rounded-full bg-secondary text-secondary-foreground text-xs font-body hover:bg-muted transition">{p}</button>
-      ))}
-    </div>
-    <SectionLabel>Generate an image</SectionLabel>
-    <div className="flex flex-wrap gap-1.5 justify-center max-w-sm">
-      {AI_IMAGE_PROMPTS.map((p) => (
-        <button key={p} onClick={() => onSend(p)} className="px-3 py-2 rounded-full bg-secondary text-foreground text-xs font-body hover:bg-muted transition border border-border">{p}</button>
-      ))}
-    </div>
-    {wardrobeCount > 0 && (
-      <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground font-body">
-        <Shirt size={14} />
-        <span>{wardrobeCount} items in your closet</span>
+    <div className="px-4 pb-3 space-y-3">
+      <div>
+        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1 block">
+          <MapPin size={9} className="inline mr-1" />Location
+        </label>
+        <input
+          type="text"
+          value={styleContext.location}
+          onChange={(e) => onChange({ ...styleContext, location: e.target.value })}
+          placeholder="e.g. Mumbai, New York"
+          className="w-full px-3 py-2 rounded-lg bg-background text-foreground text-xs placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-border transition"
+        />
       </div>
-    )}
+      <div>
+        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">
+          <Calendar size={9} className="inline mr-1" />Occasion
+        </label>
+        <div className="flex flex-wrap gap-1.5">
+          {OCCASIONS.map((o) => (
+            <button
+              key={o}
+              onClick={() => onChange({ ...styleContext, occasion: o })}
+              className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition ${
+                styleContext.occasion === o
+                  ? 'bg-foreground text-background'
+                  : 'bg-background text-muted-foreground hover:bg-muted'
+              }`}
+            >
+              {o}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Event Details</label>
+        <input
+          type="text"
+          value={styleContext.eventType}
+          onChange={(e) => onChange({ ...styleContext, eventType: e.target.value })}
+          placeholder="e.g. outdoor brunch, evening gala"
+          className="w-full px-3 py-2 rounded-lg bg-background text-foreground text-xs placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-border transition"
+        />
+      </div>
+      <div>
+        <label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Comfort</label>
+        <div className="flex gap-1.5">
+          {COMFORT_LEVELS.map((c) => (
+            <button
+              key={c}
+              onClick={() => onChange({ ...styleContext, comfort: c })}
+              className={`flex-1 px-2 py-1.5 rounded-lg text-[11px] font-medium transition ${
+                styleContext.comfort === c
+                  ? 'bg-foreground text-background'
+                  : 'bg-background text-muted-foreground hover:bg-muted'
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
   </div>
 );
 
-const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-  <p className="text-[10px] font-body font-semibold text-muted-foreground uppercase tracking-wider mb-2">{children}</p>
+// ─── Empty State ─────────────────────────────────────────────────
+
+const EmptyState = ({ wardrobeCount, onSend }: { wardrobeCount: number; onSend: (text: string) => void }) => (
+  <div className="flex flex-col h-full">
+    <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
+      <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-4">
+        <Sparkles size={20} className="text-foreground" />
+      </div>
+      <h3 className="text-lg font-medium text-foreground mb-1">AI Stylist</h3>
+      <p className="text-xs text-muted-foreground max-w-[260px]">
+        Your personal fashion assistant. Ask for outfit advice or generate looks.
+      </p>
+      {wardrobeCount > 0 && (
+        <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground/70">
+          <Shirt size={13} />
+          <span>{wardrobeCount} items in closet</span>
+        </div>
+      )}
+    </div>
+
+    {/* Quick prompts at bottom */}
+    <div className="px-2 pb-3">
+      <div className="flex flex-wrap gap-2 justify-center">
+        {AI_QUICK_PROMPTS.slice(0, 3).map((p) => (
+          <button
+            key={p}
+            onClick={() => onSend(p)}
+            className="px-3 py-2 rounded-xl bg-secondary/60 border border-border/50 text-xs text-foreground hover:bg-secondary transition-colors"
+          >
+            {p}
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
 );
 
-// ─── Message Bubble with closet collage + highlighted tips ───────
+// ─── Message Bubble ──────────────────────────────────────────────
 
 const MessageBubble = ({ message, wardrobeItems }: { message: ChatMessage; wardrobeItems: WardrobeItem[] }) => {
-  // Find mentioned wardrobe items in assistant messages
   const matchedItems = useMemo(() => {
     if (message.role !== 'assistant' || !wardrobeItems.length) return [];
     const content = message.content.toLowerCase();
-    return wardrobeItems.filter((item) => {
-      const nameMatch = item.name && content.includes(item.name.toLowerCase());
-      const catMatch = content.includes(item.category.toLowerCase());
-      return nameMatch || catMatch;
-    }).slice(0, 6); // Max 6 items in collage
+    return wardrobeItems
+      .filter((item) => {
+        const nameMatch = item.name && content.includes(item.name.toLowerCase());
+        const catMatch = content.includes(item.category.toLowerCase());
+        return nameMatch || catMatch;
+      })
+      .slice(0, 6);
   }, [message, wardrobeItems]);
 
+  const isUser = message.role === 'user';
+
   return (
-    <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
-        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm font-body ${
-          message.role === 'user'
-            ? 'bg-primary text-primary-foreground rounded-br-md'
-            : 'bg-secondary text-secondary-foreground rounded-bl-md'
+        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
+          isUser
+            ? 'bg-foreground text-background rounded-br-sm'
+            : 'bg-secondary/70 text-foreground rounded-bl-sm'
         }`}
       >
-        {message.role === 'assistant' ? (
+        {!isUser ? (
           <div>
             {message.imageUrl && (
               <img src={message.imageUrl} alt="AI generated outfit" className="w-full rounded-xl mb-2 max-h-80 object-cover" />
             )}
 
-            {/* Closet collage */}
             {matchedItems.length > 0 && (
               <div className="mb-3">
-                <p className="text-[10px] font-body font-semibold text-primary uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
                   <Shirt size={10} /> From your closet
                 </p>
                 <div className={`grid gap-1.5 ${matchedItems.length === 1 ? 'grid-cols-1' : matchedItems.length <= 4 ? 'grid-cols-2' : 'grid-cols-3'}`}>
                   {matchedItems.map((item) => (
-                    <div key={item.id} className="rounded-lg overflow-hidden border-2 border-primary/30">
+                    <div key={item.id} className="rounded-lg overflow-hidden border border-border">
                       <img src={item.image_url} alt={item.name || item.category} className="w-full aspect-square object-cover" />
-                      <div className="px-1.5 py-1 bg-primary/10">
-                        <p className="text-[9px] font-body font-medium text-foreground truncate">{item.name || item.category}</p>
+                      <div className="px-1.5 py-1 bg-secondary">
+                        <p className="text-[9px] font-medium text-foreground truncate">{item.name || item.category}</p>
                       </div>
                     </div>
                   ))}
@@ -439,8 +466,7 @@ const MessageBubble = ({ message, wardrobeItems }: { message: ChatMessage; wardr
               </div>
             )}
 
-            {/* Styled markdown with highlighted tips */}
-            <div className="prose prose-sm max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1 [&_strong]:text-primary [&_strong]:font-bold [&_em]:text-accent [&_li]:marker:text-primary [&_h1]:text-primary [&_h2]:text-primary [&_h3]:text-primary [&_h3]:text-xs [&_h3]:mt-2 [&_h2]:text-sm [&_h2]:mt-2 [&_blockquote]:border-l-primary [&_blockquote]:bg-primary/5 [&_blockquote]:rounded-r-lg [&_blockquote]:py-1 [&_blockquote]:px-3 [&_blockquote]:text-xs [&_blockquote]:italic">
+            <div className="prose prose-sm max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1 [&_strong]:font-semibold [&_li]:marker:text-muted-foreground [&_h3]:text-xs [&_h3]:mt-2 [&_h2]:text-sm [&_h2]:mt-2 [&_blockquote]:border-l-border [&_blockquote]:bg-secondary [&_blockquote]:rounded-r-lg [&_blockquote]:py-1 [&_blockquote]:px-3 [&_blockquote]:text-xs">
               <ReactMarkdown>{message.content}</ReactMarkdown>
             </div>
           </div>
@@ -453,21 +479,21 @@ const MessageBubble = ({ message, wardrobeItems }: { message: ChatMessage; wardr
 };
 
 const ImageLoadingIndicator = () => (
-  <div className="flex justify-start">
-    <div className="bg-secondary rounded-2xl rounded-bl-md px-4 py-3 flex items-center gap-2">
-      <Loader2 size={16} className="animate-spin text-accent" />
-      <span className="text-xs font-body text-muted-foreground">Generating outfit image...</span>
+  <div className="flex justify-start py-2">
+    <div className="bg-secondary/70 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-2">
+      <Loader2 size={14} className="animate-spin text-muted-foreground" />
+      <span className="text-xs text-muted-foreground">Generating outfit...</span>
     </div>
   </div>
 );
 
 const TypingIndicator = () => (
-  <div className="flex justify-start">
-    <div className="bg-secondary rounded-2xl rounded-bl-md px-4 py-3">
+  <div className="flex justify-start py-2">
+    <div className="bg-secondary/70 rounded-2xl rounded-bl-sm px-4 py-3">
       <div className="flex gap-1">
-        <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-        <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-        <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+        <span className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+        <span className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+        <span className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
       </div>
     </div>
   </div>

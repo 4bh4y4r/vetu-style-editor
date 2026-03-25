@@ -1,0 +1,7 @@
+{
+  "startupCommands": [
+    "bun install; bun run dev --host 0.0.0.0"
+  ],
+  "projectId": "29279d49-635e-4378-87a5-152806e00c99",
+  "templateId": "any"
+}

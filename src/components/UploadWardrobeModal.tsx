@@ -67,77 +67,88 @@ const UploadWardrobeModal = ({ open, onClose, onUploaded }: UploadWardrobeModalP
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 backdrop-blur-sm" onClick={onClose}>
-      <div className="w-full max-w-lg bg-background rounded-t-2xl p-5 pb-8 animate-fade-in" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center sm:items-end bg-foreground/40 backdrop-blur-sm p-4 sm:p-0" onClick={onClose}>
+      <div
+        className="w-full max-w-lg bg-background rounded-2xl sm:rounded-b-none sm:rounded-t-2xl flex flex-col overflow-hidden"
+        style={{ maxHeight: 'calc(100vh - 2rem)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Fixed header */}
+        <div className="flex items-center justify-between px-5 pt-4 pb-3 shrink-0 border-b border-border/30">
           <h2 className="text-lg font-display font-bold text-foreground">Add to Wardrobe</h2>
-          <button onClick={onClose} className="text-muted-foreground p-1">
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground p-1 transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        {/* Image picker */}
-        {preview ? (
-          <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-4">
-            <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4">
+          {/* Image picker */}
+          {preview ? (
+            <div className="relative w-full rounded-lg overflow-hidden mb-4" style={{ maxHeight: '40vh' }}>
+              <img src={preview} alt="Preview" className="w-full h-full object-cover rounded-lg" style={{ maxHeight: '40vh' }} />
+              <button
+                onClick={() => { setFile(null); setPreview(null); }}
+                className="absolute top-2 right-2 bg-foreground/60 text-background rounded-full p-1"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
             <button
-              onClick={() => { setFile(null); setPreview(null); }}
-              className="absolute top-2 right-2 bg-foreground/60 text-background rounded-full p-1"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full aspect-[4/3] max-h-[35vh] rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 mb-4 text-muted-foreground hover:border-primary transition"
             >
-              <X size={16} />
+              <Camera size={32} />
+              <span className="text-sm font-body">Tap to add photo</span>
             </button>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+          />
+
+          {/* Name */}
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Item name (optional)"
+            className="w-full px-4 py-2.5 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary transition mb-3"
+          />
+
+          {/* Category chips */}
+          <div className="flex flex-wrap gap-2">
+            {WARDROBE_CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setCategory(cat)}
+                className={`px-3 py-1.5 rounded-full text-xs font-body font-medium transition ${
+                  category === cat
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-secondary text-secondary-foreground'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
-        ) : (
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full aspect-[4/3] rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 mb-4 text-muted-foreground hover:border-primary transition"
-          >
-            <Camera size={32} />
-            <span className="text-sm font-body">Tap to add photo</span>
-          </button>
-        )}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-        />
-
-        {/* Name */}
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Item name (optional)"
-          className="w-full px-4 py-2.5 rounded-lg bg-secondary text-foreground text-sm font-body placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary transition mb-3"
-        />
-
-        {/* Category chips */}
-        <div className="flex flex-wrap gap-2 mb-5">
-          {WARDROBE_CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className={`px-3 py-1.5 rounded-full text-xs font-body font-medium transition ${
-                category === cat
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-secondary-foreground'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
         </div>
 
-        <button
-          onClick={handleUpload}
-          disabled={!file || uploading}
-          className="w-full py-3 rounded-lg bg-primary text-primary-foreground text-sm font-body font-semibold hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center gap-2"
-        >
-          <Upload size={16} />
-          {uploading ? 'Uploading...' : 'Add Item'}
-        </button>
+        {/* Fixed button at bottom */}
+        <div className="px-5 py-4 border-t border-border/50 shrink-0">
+          <button
+            onClick={handleUpload}
+            disabled={!file || uploading}
+            className="w-full py-3 rounded-lg bg-primary text-primary-foreground text-sm font-body font-semibold hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            <Upload size={16} />
+            {uploading ? 'Uploading...' : 'Add Item'}
+          </button>
+        </div>
       </div>
     </div>
   );
