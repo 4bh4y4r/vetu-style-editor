@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { outfitCards, categories, OutfitCard as OutfitCardType } from '@/data/fashion';
 import MasonryGrid from '@/components/MasonryGrid';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,6 +9,7 @@ const heights: Array<'tall' | 'medium' | 'short'> = ['tall', 'medium', 'short'];
 
 const HomePage = () => {
   const [activeCategory, setActiveCategory] = useState('All');
+  const navigate = useNavigate();
   const [publicPosts, setPublicPosts] = useState<OutfitCardType[]>([]);
 
   useEffect(() => {
@@ -58,7 +60,7 @@ const HomePage = () => {
     <div className="pb-20">
       <div className="flex items-center justify-between px-4 pt-4 pb-3">
         <h1 className="text-2xl font-display font-bold tracking-tight text-primary">DRIP</h1>
-        <button className="p-2 text-foreground" aria-label="Notifications">
+        <button onClick={() => navigate('/inbox')} className="p-2 text-foreground hover:bg-secondary rounded-full transition" aria-label="Notifications">
           <Bell size={22} strokeWidth={1.6} />
         </button>
       </div>

@@ -3,6 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, Bookmark, Share2, MoreHorizontal } from 'lucide-react';
 import { outfitCards, trendingCards, OutfitCard as OutfitCardType } from '@/data/fashion';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import SaveToBoardModal from '@/components/SaveToBoardModal';
 import MasonryGrid from '@/components/MasonryGrid';
 
@@ -123,9 +130,24 @@ const OutfitDetailPage = () => {
             <button className="p-2 rounded-full hover:bg-secondary transition">
               <Share2 size={22} className="text-foreground" />
             </button>
-            <button className="p-2 rounded-full hover:bg-secondary transition">
-              <MoreHorizontal size={22} className="text-foreground" />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-2 rounded-full hover:bg-secondary transition">
+                  <MoreHorizontal size={22} className="text-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-card/95 backdrop-blur-md">
+                <DropdownMenuItem onClick={() => toast.success('Image downloaded')}>
+                  Download
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => toast.success('Followed ' + card.username)}>
+                  Follow Creator
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => toast.success('Post reported')} className="text-destructive focus:text-destructive">
+                  Report
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <button
             onClick={() => setShowSave(true)}
@@ -137,17 +159,20 @@ const OutfitDetailPage = () => {
         </div>
 
         {/* ─── User info ────────────────────────────────────────── */}
-        <div className="px-4 pb-4 flex items-center gap-3">
+        <button 
+          onClick={() => navigate(`/user/${card.username}`)}
+          className="w-full px-4 pb-4 flex items-center gap-3 text-left hover:opacity-80 transition cursor-pointer"
+        >
           <img
             src={card.avatarUrl}
             alt={card.username}
-            className="w-10 h-10 rounded-full object-cover ring-2 ring-border"
+            className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20"
           />
           <div>
             <p className="text-sm font-body font-semibold text-foreground">{card.username}</p>
             <p className="text-xs font-body text-muted-foreground">{card.category}</p>
           </div>
-        </div>
+        </button>
 
         {/* ─── Divider ──────────────────────────────────────────── */}
         <div className="mx-4 border-t border-border" />

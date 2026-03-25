@@ -119,9 +119,8 @@ const UploadOutfitModal = ({ open, date, onClose, onUploaded }: UploadOutfitModa
           {/* Visibility toggle */}
           <button
             onClick={() => setIsPublic(!isPublic)}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg w-full text-sm font-body font-medium transition ${
-              isPublic ? 'bg-accent/15 text-accent' : 'bg-secondary text-muted-foreground'
-            }`}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg w-full text-sm font-body font-medium transition ${isPublic ? 'bg-accent/15 text-accent' : 'bg-secondary text-muted-foreground'
+              }`}
           >
             {isPublic ? <Eye size={16} /> : <EyeOff size={16} />}
             {isPublic ? 'Public — visible on your feed' : 'Private — only you can see this'}

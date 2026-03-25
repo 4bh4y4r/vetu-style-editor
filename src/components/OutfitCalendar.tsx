@@ -221,11 +221,10 @@ const SelectedDayPanel = ({
             <div className="aspect-[4/5] overflow-hidden relative">
               <img src={outfit.image_url} alt="Outfit" className="w-full h-full object-cover" />
               <div className="absolute top-2 left-2">
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-body font-semibold backdrop-blur-md ${
-                  outfit.is_public
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-body font-semibold backdrop-blur-md ${outfit.is_public
                     ? 'bg-primary/20 text-white border border-primary/30'
                     : 'bg-black/30 text-white/70 border border-white/10'
-                }`}>
+                  }`}>
                   {outfit.is_public ? <Eye size={9} /> : <EyeOff size={9} />}
                   {outfit.is_public ? 'Public' : 'Only you'}
                 </span>
@@ -235,11 +234,10 @@ const SelectedDayPanel = ({
             <div className="px-3 py-2.5 flex items-center justify-between">
               <button
                 onClick={() => onToggleVisibility(outfit)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-body font-semibold transition ${
-                  outfit.is_public
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-body font-semibold transition ${outfit.is_public
                     ? 'bg-primary/15 text-primary hover:bg-primary/25'
                     : 'bg-secondary text-muted-foreground hover:text-foreground'
-                }`}
+                  }`}
               >
                 {outfit.is_public ? <><EyeOff size={12} /> Make Private</> : <><Eye size={12} /> Share Publicly</>}
               </button>

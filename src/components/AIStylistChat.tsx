@@ -424,11 +424,11 @@ const MessageBubble = ({ message, wardrobeItems }: { message: ChatMessage; wardr
     const content = message.content.toLowerCase();
     return wardrobeItems
       .filter((item) => {
-        const nameMatch = item.name && content.includes(item.name.toLowerCase());
-        const catMatch = content.includes(item.category.toLowerCase());
-        return nameMatch || catMatch;
-      })
-      .slice(0, 6);
+        if (item.name && item.name.trim() !== '') {
+          return content.includes(item.name.toLowerCase().trim());
+        }
+        return content.includes(item.category.toLowerCase().trim());
+      });
   }, [message, wardrobeItems]);
 
   const isUser = message.role === 'user';
