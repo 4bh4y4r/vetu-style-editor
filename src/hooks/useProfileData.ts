@@ -81,7 +81,20 @@ export const useProfileData = () => {
     fetchBoards();
   };
 
-  const displayName = profile?.username || user?.email?.split('@')[0] || 'user';
+  const updateProfile = async (updates: Partial<Profile>) => {
+    if (!user) return;
+    const { error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('user_id', user.id);
+      
+    if (!error) {
+      setProfile((prev) => prev ? { ...prev, ...updates } : null);
+    }
+    return { error };
+  };
+
+  const displayName = profile?.display_name || profile?.username || user?.email?.split('@')[0] || 'user';
 
   return {
     user,
@@ -95,5 +108,6 @@ export const useProfileData = () => {
     fetchBoards,
     createBoard,
     deleteBoard,
+    updateProfile,
   };
 };

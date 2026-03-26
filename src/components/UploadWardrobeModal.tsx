@@ -13,50 +13,63 @@ interface UploadWardrobeModalProps {
 
 const UploadWardrobeModal = ({ open, onClose, onUploaded }: UploadWardrobeModalProps) => {
   const { user } = useAuth();
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [category, setCategory] = useState<string>(WARDROBE_CATEGORIES[0]);
   const [name, setName] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = (f: File) => {
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
+  const handleFiles = (selectedFiles: FileList | File[]) => {
+    const newFiles = Array.from(selectedFiles).slice(0, 10);
+    if (selectedFiles.length > 10) {
+      toast.warning('Only up to 10 images can be uploaded at once. The first 10 were selected.');
+    }
+    setFiles(newFiles);
+    previews.forEach((p) => URL.revokeObjectURL(p));
+    setPreviews(newFiles.map((f) => URL.createObjectURL(f)));
   };
 
   const handleUpload = async () => {
-    if (!file || !user) return;
+    if (files.length === 0 || !user) return;
     setUploading(true);
 
-    const ext = file.name.split('.').pop();
-    const filePath = `${user.id}/${Date.now()}.${ext}`;
+    let successes = 0;
 
-    const { error: uploadError } = await supabase.storage.from('wardrobe').upload(filePath, file);
-    if (uploadError) {
-      toast.error('Failed to upload image');
-      setUploading(false);
-      return;
+    for (const file of files) {
+      const ext = file.name.split('.').pop();
+      const filePath = `${user.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage.from('wardrobe').upload(filePath, file);
+      if (uploadError) {
+        toast.error(`Failed to upload ${file.name}`);
+        continue;
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('wardrobe').getPublicUrl(filePath);
+
+      const { error: dbError } = await supabase.from('wardrobe_items').insert({
+        user_id: user.id,
+        image_url: publicUrl,
+        category,
+        name: name.trim() || null,
+      });
+
+      if (dbError) {
+        toast.error(`Failed to save ${file.name}`);
+      } else {
+        successes++;
+      }
     }
 
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from('wardrobe').getPublicUrl(filePath);
-
-    const { error: dbError } = await supabase.from('wardrobe_items').insert({
-      user_id: user.id,
-      image_url: publicUrl,
-      category,
-      name: name.trim() || null,
-    });
-
     setUploading(false);
-    if (dbError) {
-      toast.error('Failed to save item');
-    } else {
-      toast.success('Item added to wardrobe!');
-      setFile(null);
-      setPreview(null);
+    if (successes > 0) {
+      toast.success(`Successfully added ${successes} item${successes > 1 ? 's' : ''}!`);
+      setFiles([]);
+      previews.forEach((p) => URL.revokeObjectURL(p));
+      setPreviews([]);
       setName('');
       setCategory(WARDROBE_CATEGORIES[0]);
       onUploaded();
@@ -84,15 +97,27 @@ const UploadWardrobeModal = ({ open, onClose, onUploaded }: UploadWardrobeModalP
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4">
           {/* Image picker */}
-          {preview ? (
-            <div className="relative w-full rounded-lg overflow-hidden mb-4" style={{ maxHeight: '40vh' }}>
-              <img src={preview} alt="Preview" className="w-full h-full object-cover rounded-lg" style={{ maxHeight: '40vh' }} />
-              <button
-                onClick={() => { setFile(null); setPreview(null); }}
-                className="absolute top-2 right-2 bg-foreground/60 text-background rounded-full p-1"
-              >
-                <X size={16} />
-              </button>
+          {previews.length > 0 ? (
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              {previews.map((preview, idx) => (
+                <div key={idx} className="relative aspect-square w-full rounded-lg overflow-hidden border border-border">
+                  <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => {
+                        const newFiles = [...files];
+                        const newPreviews = [...previews];
+                        newFiles.splice(idx, 1);
+                        newPreviews.splice(idx, 1);
+                        URL.revokeObjectURL(preview);
+                        setFiles(newFiles);
+                        setPreviews(newPreviews);
+                    }}
+                    className="absolute top-1 right-1 bg-foreground/60 text-background rounded-full p-0.5"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
             </div>
           ) : (
             <button
@@ -107,8 +132,9 @@ const UploadWardrobeModal = ({ open, onClose, onUploaded }: UploadWardrobeModalP
             ref={fileInputRef}
             type="file"
             accept="image/*"
+            multiple
             className="hidden"
-            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+            onChange={(e) => e.target.files && handleFiles(e.target.files)}
           />
 
           {/* Name */}
@@ -142,11 +168,11 @@ const UploadWardrobeModal = ({ open, onClose, onUploaded }: UploadWardrobeModalP
         <div className="px-5 py-4 border-t border-border/50 shrink-0">
           <button
             onClick={handleUpload}
-            disabled={!file || uploading}
+            disabled={files.length === 0 || uploading}
             className="w-full py-3 rounded-lg bg-primary text-primary-foreground text-sm font-body font-semibold hover:opacity-90 transition disabled:opacity-50 flex items-center justify-center gap-2"
           >
             <Upload size={16} />
-            {uploading ? 'Uploading...' : 'Add Item'}
+            {uploading ? 'Uploading...' : `Add ${files.length > 0 ? files.length : ''} Item${files.length > 1 ? 's' : ''}`.trim()}
           </button>
         </div>
       </div>

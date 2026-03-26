@@ -65,7 +65,7 @@ const ClosetTab = ({ wardrobeItems, onRefresh }: ClosetTabProps) => {
               <img
                 src={item.image_url}
                 alt={item.category}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain bg-secondary/10"
                 loading="lazy"
               />
             </div>
@@ -94,24 +94,8 @@ const ClosetTab = ({ wardrobeItems, onRefresh }: ClosetTabProps) => {
         )}
       </div>
 
-      {/* FAB */}
-      <button
-        onClick={() => setShowUpload(true)}
-        className="fixed bottom-20 right-4 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center z-40 hover:scale-105 transition-transform"
-        aria-label="Add wardrobe item"
-      >
-        <Plus size={24} />
-      </button>
-
-      <UploadWardrobeModal
-        open={showUpload}
-        onClose={() => setShowUpload(false)}
-        onUploaded={() => {
-          onRefresh();
-          setShowUpload(false);
-        }}
-      />
-
+      {/* FAB and UploadModal moved to BottomNav */}
+      
       <EditWardrobeModal
         open={!!editItem}
         item={editItem}

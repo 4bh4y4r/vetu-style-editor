@@ -51,7 +51,7 @@ serve(async (req) => {
     // ─── Build wardrobe context ──────────────────────────────
     const wardrobeItemsContent: any[] = wardrobeItems?.length
       ? wardrobeItems.flatMap((item: any) => {
-          const blocks: any[] = [{ type: "text", text: `Item: ${item.category}${item.name ? ` - ${item.name}` : ''}` }];
+          const blocks: any[] = [{ type: "text", text: `Item Ref: ${item.ref_id} | Category: ${item.category}${item.name ? ` | Name: ${item.name}` : ''}` }];
           if (item.image_url) {
             blocks.push({ type: "image_url", image_url: { url: item.image_url } });
           }
@@ -121,10 +121,13 @@ Apply these rules to every recommendation:
 Return your response in this format:
 1. **The Vision**: A brief 1-sentence vibe of the outfit.
 2. **The Breakdown**: 
-   - [Top]: Item Name + Why the color/fit works for a Slim build.
-   - [Bottom]: Item Name + Styling tip (e.g., "Cuff the hem").
-   - [Accessory]: Item Name + How it complements the metal/tones.
+   - [Top]: Item Name + Why the color/fit works for a Slim build. YOU MUST APPEND THE Item Ref here (e.g., "[W-2]").
+   - [Bottom]: Item Name + Styling tip (e.g., "Cuff the hem"). YOU MUST APPEND THE Item Ref here (e.g., "[W-5]").
+   - [Accessory]: Item Name + How it complements the metal/tones. YOU MUST APPEND THE Item Ref here (e.g., "[W-9]").
 3. **Pro-Stylist Tip**: A specific tip on layering or grooming to finish the look.
+
+# CRITICAL RULE
+For EVERY item you recommend from the user's closet, YOU MUST include its exact Item Ref somewhere in the text, EXACTLY formatted as provided to you (e.g., [W-1], [W-4]). If you fail to include the Item Ref brackets, the system will break.
 
 Additional environment context follows:${bodyContext}${weatherInfo}${contextBlock}`;
 

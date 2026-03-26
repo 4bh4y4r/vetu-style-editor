@@ -1,7 +1,12 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { Send, Sparkles, Shirt, ImageIcon, Loader2, Plus, SlidersHorizontal, MapPin, Calendar, Sun, ChevronUp } from 'lucide-react';
+import { Send, Sparkles, Shirt, ImageIcon, Loader2, Plus, SlidersHorizontal, MapPin, Calendar, Sun, ChevronUp, Bookmark, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { Drawer } from 'vaul';
 import ReactMarkdown from 'react-markdown';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { format } from 'date-fns';
+import SaveToBoardModal from '@/components/SaveToBoardModal';
 import type { WardrobeItem, ChatMessage } from '@/types';
 import { AI_QUICK_PROMPTS, AI_IMAGE_PROMPTS, getEdgeFunctionUrl } from '@/constants';
 
@@ -41,11 +46,14 @@ const AIStylistChat = ({
   onNewConversation,
   onSaveMessage,
 }: AIStylistChatProps) => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages || []);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [showContext, setShowContext] = useState(false);
+  const [boardModalData, setBoardModalData] = useState<{ open: boolean; urls: string[]; title?: string }>({ open: false, urls: [] });
+  const [detailedItems, setDetailedItems] = useState<WardrobeItem[] | null>(null);
   const [activeConvId, setActiveConvId] = useState<string | null>(conversationId || null);
   const [styleContext, setStyleContext] = useState<StyleContext>({
     location: '',
@@ -81,6 +89,23 @@ const AIStylistChat = ({
     const convId = activeConvId;
     if (convId && onSaveMessage) {
       await onSaveMessage(convId, msg);
+    }
+  };
+
+  const handleSaveToProfile = async (imageUrl: string) => {
+    if (!user) return;
+    try {
+      const { error } = await supabase.from('outfit_posts').insert({
+        user_id: user.id,
+        image_url: imageUrl,
+        outfit_date: format(new Date(), 'yyyy-MM-dd'),
+        is_public: false,
+        notes: 'AI suggested outfit',
+      });
+      if (error) throw error;
+      toast.success('Saved to your Created tab! 🌟');
+    } catch (err: any) {
+      toast.error('Failed to save outfit');
     }
   };
 
@@ -169,7 +194,12 @@ const AIStylistChat = ({
           messages: [...messages, userMsg]
             .filter((m) => !m.imageUrl)
             .map((m) => ({ role: m.role, content: m.content })),
-          wardrobeItems: wardrobeItems.map((i) => ({ category: i.category, name: i.name, image_url: i.image_url })),
+          wardrobeItems: wardrobeItems.map((i, index) => ({ 
+            ref_id: `[W-${index + 1}]`,
+            category: i.category, 
+            name: i.name, 
+            image_url: i.image_url 
+          })),
           styleContext,
           bodyProfile: bodyProfile || undefined,
         }),
@@ -229,7 +259,13 @@ const AIStylistChat = ({
         ) : (
           <div className="space-y-4 py-4">
             {messages.map((msg, i) => (
-              <MessageBubble key={i} message={msg} wardrobeItems={wardrobeItems} />
+              <MessageBubble 
+                key={i} 
+                message={msg} 
+                wardrobeItems={wardrobeItems} 
+                onSaveOutfit={handleSaveToProfile}
+                onViewDetails={(items) => setDetailedItems(items)}
+              />
             ))}
           </div>
         )}
@@ -278,6 +314,56 @@ const AIStylistChat = ({
           </button>
         </div>
       </div>
+
+      <Drawer.Root open={!!detailedItems} onOpenChange={(open) => !open && setDetailedItems(null)}>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 bg-black/60 z-[60]" />
+          <Drawer.Content className="bg-background flex flex-col rounded-t-[24px] fixed bottom-0 left-0 right-0 z-[70] outline-none mt-auto h-[90vh] mx-auto w-full max-w-lg overflow-hidden">
+            <div className="px-4 pt-4 pb-3 shrink-0 bg-background z-10">
+              <div className="mx-auto w-10 h-1.5 flex-shrink-0 rounded-full bg-border mb-4" />
+              <div className="flex items-center justify-between">
+                 <h2 className="text-xl font-bold">Outfit Details</h2>
+                 <button onClick={() => setDetailedItems(null)} className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors"><X size={20}/></button>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto px-4 pb-6">
+              <div className="columns-2 gap-3 space-y-3 pt-2">
+                {detailedItems?.map(item => (
+                  <div key={item.id} className="rounded-xl overflow-hidden bg-card border border-border break-inside-avoid shadow-sm hover:shadow-md transition-shadow">
+                     <div className="relative overflow-hidden bg-secondary">
+                        <img src={item.image_url} alt={item.name} className="w-full h-auto object-cover" />
+                     </div>
+                     <div className="p-3 border-t border-border/50">
+                       <p className="text-sm font-semibold text-foreground truncate">{item.name || item.category}</p>
+                       <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mt-0.5 truncate">{item.category}</p>
+                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="px-4 py-3 border-t border-border bg-background/95 backdrop-blur-md shrink-0 pb-safe flex justify-end">
+               <button
+                  onClick={() => {
+                    setBoardModalData({ open: true, urls: detailedItems!.map(i => i.image_url), title: 'AI Suggested Outfit' });
+                    setDetailedItems(null);
+                  }}
+                  className="px-5 py-2.5 rounded-full bg-primary text-primary-foreground flex items-center gap-2 font-semibold hover:brightness-110 transition shadow-md text-sm"
+                >
+                  <Bookmark size={15} fill="currentColor" /> Save to Board
+                </button>
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+
+      <SaveToBoardModal
+        open={boardModalData.open}
+        imageUrls={boardModalData.urls}
+        title={boardModalData.title}
+        onClose={() => setBoardModalData({ open: false, urls: [] })}
+      />
     </div>
   );
 };
@@ -407,17 +493,33 @@ const EmptyState = ({ wardrobeCount, onSend }: { wardrobeCount: number; onSend: 
 
 // ─── Message Bubble ──────────────────────────────────────────────
 
-const MessageBubble = ({ message, wardrobeItems }: { message: ChatMessage; wardrobeItems: WardrobeItem[] }) => {
+interface MessageBubbleProps {
+  message: ChatMessage;
+  wardrobeItems: WardrobeItem[];
+  onSaveOutfit: (url: string) => void;
+  onViewDetails: (items: WardrobeItem[]) => void;
+}
+
+const MessageBubble = ({ message, wardrobeItems, onSaveOutfit, onViewDetails }: MessageBubbleProps) => {
   const matchedItems = useMemo(() => {
     if (message.role !== 'assistant' || !wardrobeItems.length) return [];
-    const content = message.content.toLowerCase();
-    return wardrobeItems
-      .filter((item) => {
-        if (item.name && item.name.trim() !== '') {
-          return content.includes(item.name.toLowerCase().trim());
-        }
-        return content.includes(item.category.toLowerCase().trim());
-      });
+    
+    const contentUpper = message.content.toUpperCase();
+    const contentLower = message.content.toLowerCase();
+    
+    return wardrobeItems.filter((item, index) => {
+       const refId = `[W-${index + 1}]`;
+       // 1. Precise Match (Future-Proof for updated Edge Function)
+       if (contentUpper.includes(refId)) return true;
+       
+       // 2. Fallback to exact Name match
+       if (item.name && item.name.trim() !== '') {
+         return contentLower.includes(item.name.toLowerCase().trim());
+       }
+       
+       // 3. Last Resort Fallback to Category match
+       return contentLower.includes(item.category.toLowerCase().trim());
+    });
   }, [message, wardrobeItems]);
 
   const isUser = message.role === 'user';
@@ -434,17 +536,31 @@ const MessageBubble = ({ message, wardrobeItems }: { message: ChatMessage; wardr
         {!isUser ? (
           <div>
             {message.imageUrl && (
-              <img src={message.imageUrl} alt="AI generated outfit" className="w-full rounded-xl mb-2 max-h-80 object-cover" />
+              <div className="relative group mb-3">
+                <img src={message.imageUrl} alt="AI generated outfit" className="w-full rounded-xl max-h-80 object-cover" />
+                <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => onSaveOutfit(message.imageUrl!)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-black/60 hover:bg-black text-white text-[11px] font-semibold rounded-full backdrop-blur-md transition shadow-md border border-white/20"
+                  >
+                    <Bookmark size={13} fill="currentColor" /> Save
+                  </button>
+                </div>
+              </div>
             )}
 
             {matchedItems.length > 0 && (
-              <div className="mb-3">
-                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                  <Shirt size={10} /> From your closet
+              <div className="mb-3 pb-3 border-b border-border/40">
+                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1">
+                  <Shirt size={10} /> Suggested Look
                 </p>
-                <div className={`grid gap-1.5 ${matchedItems.length === 1 ? 'grid-cols-1' : matchedItems.length <= 4 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                
+                <div 
+                  className={`grid gap-1.5 ${matchedItems.length === 1 ? 'grid-cols-1' : matchedItems.length <= 4 ? 'grid-cols-2' : 'grid-cols-3'} cursor-pointer hover:opacity-95 transition mt-2`}
+                  onClick={() => onViewDetails(matchedItems)}
+                >
                   {matchedItems.map((item) => (
-                    <div key={item.id} className="rounded-lg overflow-hidden border border-border">
+                    <div key={item.id} className="rounded-lg overflow-hidden border border-border shadow-sm">
                       <img src={item.image_url} alt={item.name || item.category} className="w-full aspect-square object-cover" />
                       <div className="px-1.5 py-1 bg-secondary">
                         <p className="text-[9px] font-medium text-foreground truncate">{item.name || item.category}</p>
@@ -452,6 +568,12 @@ const MessageBubble = ({ message, wardrobeItems }: { message: ChatMessage; wardr
                     </div>
                   ))}
                 </div>
+                <button
+                  onClick={() => onViewDetails(matchedItems)}
+                  className="mt-2.5 flex items-center justify-center w-full gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary text-[11px] font-semibold rounded-full transition shadow-sm"
+                >
+                  View Outfit Details
+                </button>
               </div>
             )}
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProfileData } from '@/hooks/useProfileData';
 import { useStreak } from '@/hooks/useStreak';
 import ProfileHeader from '@/components/profile/ProfileHeader';
@@ -7,12 +7,16 @@ import StreakWidget from '@/components/profile/StreakWidget';
 import ClosetTab from '@/components/profile/ClosetTab';
 import BoardsTab from '@/components/profile/BoardsTab';
 import BoardDetail from '@/components/BoardDetail';
-import OutfitCalendar from '@/components/OutfitCalendar';
+import CreatedTab from '@/components/profile/CreatedTab';
 import UploadOutfitModal from '@/components/UploadOutfitModal';
+import EditProfileModal from '@/components/profile/EditProfileModal';
+import SettingsModal from '@/components/profile/SettingsModal';
+import FollowListModal from '@/components/profile/FollowListModal';
 import type { Board } from '@/types';
 
 const ProfilePage = () => {
   const {
+    user,
     profile,
     displayName,
     wardrobeItems,
@@ -23,16 +27,40 @@ const ProfilePage = () => {
     fetchBoards,
     createBoard,
     deleteBoard,
+    updateProfile,
   } = useProfileData();
 
   const { streak, recordActivity } = useStreak();
 
-  const [tab, setTab] = useState<TabKey>('outfits');
+  const [tab, setTab] = useState<TabKey>('created');
   const [selectedBoard, setSelectedBoard] = useState<Board | null>(null);
-  const [outfitDate, setOutfitDate] = useState<Date | null>(null);
   const [showOutfitUpload, setShowOutfitUpload] = useState(false);
   const [calendarKey, setCalendarKey] = useState(0);
   const [showUpload, setShowUpload] = useState(false);
+
+  // New Modal States
+  const [showSettings, setShowSettings] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [followListType, setFollowListType] = useState<'followers' | 'following' | null>(null);
+
+  useEffect(() => {
+    const handleOutfitUploaded = () => {
+      setCalendarKey((k) => k + 1);
+      recordActivity();
+    };
+    
+    const handleWardrobeUploaded = () => {
+      fetchWardrobe();
+    };
+    
+    window.addEventListener('outfit_uploaded', handleOutfitUploaded);
+    window.addEventListener('wardrobe_uploaded', handleWardrobeUploaded);
+    
+    return () => {
+      window.removeEventListener('outfit_uploaded', handleOutfitUploaded);
+      window.removeEventListener('wardrobe_uploaded', handleWardrobeUploaded);
+    };
+  }, [recordActivity, fetchWardrobe]);
 
   // ─── Board detail view ──────────────────────────────────────
   if (selectedBoard) {
@@ -63,7 +91,10 @@ const ProfilePage = () => {
         wardrobeCount={wardrobeItems.length}
         followersCount={followersCount}
         followingCount={followingCount}
-        onAddContent={() => setShowUpload(true)}
+        onAddContent={() => setShowOutfitUpload(true)}
+        onOpenSettings={() => setShowSettings(true)}
+        onEditProfile={() => setShowEditProfile(true)}
+        onOpenFollows={(type) => setFollowListType(type)}
       />
 
       {/* Streak widget */}
@@ -77,18 +108,15 @@ const ProfilePage = () => {
       <ProfileTabs activeTab={tab} onChangeTab={setTab} />
 
       {/* Tab content */}
-      {tab === 'outfits' && (
+      {tab === 'created' && (
         <>
-          <OutfitCalendar
+          <CreatedTab
             key={calendarKey}
-            onAddOutfit={(date) => {
-              setOutfitDate(date);
-              setShowOutfitUpload(true);
-            }}
+            onAddOutfit={() => setShowOutfitUpload(true)}
           />
           <UploadOutfitModal
             open={showOutfitUpload}
-            date={outfitDate || new Date()}
+            date={new Date()}
             onClose={() => setShowOutfitUpload(false)}
             onUploaded={() => {
               setShowOutfitUpload(false);
@@ -103,13 +131,33 @@ const ProfilePage = () => {
         <ClosetTab wardrobeItems={wardrobeItems} onRefresh={fetchWardrobe} />
       )}
 
-      {tab === 'boards' && (
+      {tab === 'saved' && (
         <BoardsTab
           boards={boards}
           onSelectBoard={setSelectedBoard}
           onCreateBoard={createBoard}
         />
       )}
+
+      {/* Profile Modals */}
+      <EditProfileModal
+        open={showEditProfile}
+        profile={profile}
+        onClose={() => setShowEditProfile(false)}
+        onUpdate={updateProfile}
+      />
+      <SettingsModal
+        open={showSettings}
+        profile={profile}
+        onClose={() => setShowSettings(false)}
+        onUpdate={updateProfile}
+      />
+      <FollowListModal
+        open={!!followListType}
+        type={followListType}
+        userId={user?.id || ''}
+        onClose={() => setFollowListType(null)}
+      />
     </div>
   );
 };

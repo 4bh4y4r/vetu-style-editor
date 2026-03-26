@@ -9,6 +9,9 @@ export interface Profile {
   display_name: string | null;
   avatar_url: string | null;
   bio: string | null;
+  height_cm?: number | null;
+  body_type?: string | null;
+  skin_tone?: string | null;
 }
 
 // ─── Wardrobe ────────────────────────────────────────────────────

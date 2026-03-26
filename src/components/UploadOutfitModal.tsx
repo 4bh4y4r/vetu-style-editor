@@ -19,6 +19,7 @@ const UploadOutfitModal = ({ open, date, onClose, onUploaded }: UploadOutfitModa
   const [isPublic, setIsPublic] = useState(false);
   const [notes, setNotes] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [outfitDate, setOutfitDate] = useState<Date>(date);
   const fileRef = useRef<HTMLInputElement>(null);
 
   if (!open) return null;
@@ -46,7 +47,7 @@ const UploadOutfitModal = ({ open, date, onClose, onUploaded }: UploadOutfitModa
       const { error: insertError } = await supabase.from('outfit_posts').insert({
         user_id: user.id,
         image_url: urlData.publicUrl,
-        outfit_date: format(date, 'yyyy-MM-dd'),
+        outfit_date: format(outfitDate, 'yyyy-MM-dd'),
         is_public: isPublic,
         notes: notes.trim() || null,
       });
@@ -106,6 +107,17 @@ const UploadOutfitModal = ({ open, date, onClose, onUploaded }: UploadOutfitModa
             </button>
           )}
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+
+          {/* Date Picker */}
+          <div className="mb-3">
+            <label className="text-xs text-muted-foreground mb-1 block ml-1">Outfit Date</label>
+            <input
+              type="date"
+              value={format(outfitDate, 'yyyy-MM-dd')}
+              onChange={(e) => setOutfitDate(e.target.value ? new Date(e.target.value) : new Date())}
+              className="w-full px-3 py-2 rounded-lg bg-secondary text-foreground text-sm font-body outline-none focus:ring-2 focus:ring-primary/30 transition"
+            />
+          </div>
 
           {/* Notes */}
           <input

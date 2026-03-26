@@ -10,12 +10,13 @@ interface Board {
 
 interface SaveToBoardModalProps {
   open: boolean;
-  imageUrl: string;
+  imageUrl?: string;
+  imageUrls?: string[];
   title?: string;
   onClose: () => void;
 }
 
-const SaveToBoardModal = ({ open, imageUrl, title, onClose }: SaveToBoardModalProps) => {
+const SaveToBoardModal = ({ open, imageUrl, imageUrls, title, onClose }: SaveToBoardModalProps) => {
   const { user } = useAuth();
   const [boards, setBoards] = useState<Board[]>([]);
   const [saving, setSaving] = useState<string | null>(null);
@@ -41,12 +42,17 @@ const SaveToBoardModal = ({ open, imageUrl, title, onClose }: SaveToBoardModalPr
   const handleSave = async (boardId: string) => {
     if (!user) return;
     setSaving(boardId);
-    await supabase.from('board_pins').insert({
-      board_id: boardId,
-      user_id: user.id,
-      image_url: imageUrl,
-      title: title || null,
-    });
+    
+    const urlsToSave = imageUrls || (imageUrl ? [imageUrl] : []);
+    
+    for (const url of urlsToSave) {
+      await supabase.from('board_pins').insert({
+        board_id: boardId,
+        user_id: user.id,
+        image_url: url,
+        title: title || null,
+      });
+    }
     setSaving(null);
     setSaved(boardId);
     setTimeout(onClose, 600);

@@ -26,6 +26,12 @@ export const outfitCards: OutfitCard[] = [
   { id: '8', imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=420&fit=crop&auto=format', username: 'zoe.fit', avatarUrl: 'https://i.pravatar.cc/40?img=8', liked: true, height: 'short', category: 'Formal' },
   { id: '9', imageUrl: 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=400&h=500&fit=crop&auto=format', username: 'omar.edge', avatarUrl: 'https://i.pravatar.cc/40?img=9', liked: false, height: 'medium', category: 'Streetwear' },
   { id: '10', imageUrl: 'https://images.unsplash.com/photo-1502716119720-b23a1e3b2b22?w=400&h=570&fit=crop&auto=format', username: 'elle.vibe', avatarUrl: 'https://i.pravatar.cc/40?img=10', liked: false, height: 'tall', category: 'Boho' },
+  { id: '11', imageUrl: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=400&h=560&fit=crop&auto=format', username: 'pin.aesthetic', avatarUrl: 'https://i.pravatar.cc/40?img=21', liked: true, height: 'tall', category: 'Streetwear' },
+  { id: '12', imageUrl: 'https://images.unsplash.com/photo-1434389670869-c875152865e9?w=400&h=480&fit=crop&auto=format', username: 'daily.fit', avatarUrl: 'https://i.pravatar.cc/40?img=22', liked: false, height: 'short', category: 'Minimal' },
+  { id: '13', imageUrl: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=400&h=620&fit=crop&auto=format', username: 'mens.wear', avatarUrl: 'https://i.pravatar.cc/40?img=23', liked: false, height: 'tall', category: 'Formal' },
+  { id: '14', imageUrl: 'https://images.unsplash.com/photo-1618886614638-80e3c103d31a?w=400&h=520&fit=crop&auto=format', username: 'neo.style', avatarUrl: 'https://i.pravatar.cc/40?img=24', liked: true, height: 'medium', category: 'Minimal' },
+  { id: '15', imageUrl: 'https://images.unsplash.com/photo-1520975954732-57dd22299614?w=400&h=550&fit=crop&auto=format', username: 'dark.mode', avatarUrl: 'https://i.pravatar.cc/40?img=25', liked: false, height: 'tall', category: 'Casual' },
+  { id: '16', imageUrl: 'https://images.unsplash.com/photo-1532453288672-3a27e9be2030?w=400&h=450&fit=crop&auto=format', username: 'retro.fits', avatarUrl: 'https://i.pravatar.cc/40?img=26', liked: true, height: 'short', category: 'Boho' },
 ];
 
 export const trendingCards: OutfitCard[] = [
@@ -35,6 +41,10 @@ export const trendingCards: OutfitCard[] = [
   { id: 't4', imageUrl: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=520&fit=crop&auto=format', username: 'mode.paris', avatarUrl: 'https://i.pravatar.cc/40?img=14', liked: false, height: 'medium', category: 'Formal' },
   { id: 't5', imageUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=580&fit=crop&auto=format', username: 'street.lens', avatarUrl: 'https://i.pravatar.cc/40?img=15', liked: true, height: 'tall', category: 'Casual' },
   { id: 't6', imageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=430&fit=crop&auto=format', username: 'fit.journal', avatarUrl: 'https://i.pravatar.cc/40?img=16', liked: false, height: 'short', category: 'Minimal' },
+  { id: 't7', imageUrl: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=400&h=650&fit=crop&auto=format', username: 'urban.classic', avatarUrl: 'https://i.pravatar.cc/40?img=31', liked: false, height: 'tall', category: 'Casual' },
+  { id: 't8', imageUrl: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400&h=500&fit=crop&auto=format', username: 'gent.style', avatarUrl: 'https://i.pravatar.cc/40?img=32', liked: true, height: 'medium', category: 'Formal' },
+  { id: 't9', imageUrl: 'https://images.unsplash.com/photo-1550614000-4b95d4669e22?w=400&h=400&fit=crop&auto=format', username: 'hype.beast', avatarUrl: 'https://i.pravatar.cc/40?img=33', liked: false, height: 'short', category: 'Streetwear' },
+  { id: 't10', imageUrl: 'https://images.unsplash.com/photo-1588117305388-c2631a279f82?w=400&h=560&fit=crop&auto=format', username: 'vintage.lens', avatarUrl: 'https://i.pravatar.cc/40?img=34', liked: true, height: 'tall', category: 'Boho' },
 ];
 
 export const wardrobeItems: ClothingItem[] = [

@@ -1,12 +1,12 @@
-import { CalendarDays, Shirt, LayoutGrid } from 'lucide-react';
+import { Grid, LayoutGrid, Shirt } from 'lucide-react';
 
-type TabKey = 'outfits' | 'closet' | 'boards';
+type TabKey = 'created' | 'saved' | 'closet';
 
-const TABS: { key: TabKey; label: string; icon: typeof CalendarDays }[] = [
-  { key: 'outfits', label: 'Calendar', icon: CalendarDays },
+const TABS = [
+  { key: 'created', label: 'Created', icon: Grid },
+  { key: 'saved', label: 'Boards', icon: LayoutGrid },
   { key: 'closet', label: 'Closet', icon: Shirt },
-  { key: 'boards', label: 'Boards', icon: LayoutGrid },
-];
+] as const;
 
 interface ProfileTabsProps {
   activeTab: TabKey;
@@ -14,21 +14,24 @@ interface ProfileTabsProps {
 }
 
 const ProfileTabs = ({ activeTab, onChangeTab }: ProfileTabsProps) => (
-  <div className="flex border-b border-border mx-4 mb-4">
+  <div className="flex justify-center gap-10 border-b border-border/40 mx-4 mb-6 pt-2">
     {TABS.map((t) => {
       const Icon = t.icon;
       return (
         <button
           key={t.key}
           onClick={() => onChangeTab(t.key)}
-          className={`flex-1 flex items-center justify-center gap-1.5 pb-2.5 text-sm font-body font-medium transition-colors ${
+          className={`pb-3 flex items-center gap-1.5 text-[15px] font-semibold transition-colors relative ${
             activeTab === t.key
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-muted-foreground'
+              ? 'text-foreground'
+              : 'text-muted-foreground hover:text-foreground/80'
           }`}
         >
           <Icon size={16} />
           {t.label}
+          {activeTab === t.key && (
+            <div className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-foreground rounded-t-full" />
+          )}
         </button>
       );
     })}
