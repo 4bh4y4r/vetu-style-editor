@@ -63,7 +63,7 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppRoutes = () => (
-  <div className="max-w-lg mx-auto min-h-screen bg-background relative">
+  <div className="min-h-screen bg-background relative lg:pl-16">
     <Routes>
       <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
       <Route path="/signup" element={<AuthRoute><SignupPage /></AuthRoute>} />

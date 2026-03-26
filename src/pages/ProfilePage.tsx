@@ -84,60 +84,65 @@ const ProfilePage = () => {
 
   // ─── Main profile view ─────────────────────────────────────
   return (
-    <div className="pb-20">
-      <ProfileHeader
-        profile={profile}
-        displayName={displayName}
-        wardrobeCount={wardrobeItems.length}
-        followersCount={followersCount}
-        followingCount={followingCount}
-        onAddContent={() => setShowOutfitUpload(true)}
-        onOpenSettings={() => setShowSettings(true)}
-        onEditProfile={() => setShowEditProfile(true)}
-        onOpenFollows={(type) => setFollowListType(type)}
-      />
-
-      {/* Streak widget */}
-      <StreakWidget
-        currentStreak={streak.currentStreak}
-        longestStreak={streak.longestStreak}
-        recentDays={streak.recentDays}
-        todayDone={streak.todayDone}
-      />
-
-      <ProfileTabs activeTab={tab} onChangeTab={setTab} />
-
-      {/* Tab content */}
-      {tab === 'created' && (
-        <>
-          <CreatedTab
-            key={calendarKey}
-            onAddOutfit={() => setShowOutfitUpload(true)}
+    <div className="pb-20 lg:pb-12 max-w-screen-xl lg:mx-0">
+      <div className="md:flex md:gap-8 lg:gap-12 md:px-6 lg:px-12 md:pt-6 lg:pt-6">
+        {/* Left column: profile info + streak */}
+        <div className="md:w-64 md:flex-shrink-0">
+          <ProfileHeader
+            profile={profile}
+            displayName={displayName}
+            wardrobeCount={wardrobeItems.length}
+            followersCount={followersCount}
+            followingCount={followingCount}
+            onAddContent={() => setShowOutfitUpload(true)}
+            onOpenSettings={() => setShowSettings(true)}
+            onEditProfile={() => setShowEditProfile(true)}
+            onOpenFollows={(type) => setFollowListType(type)}
           />
-          <UploadOutfitModal
-            open={showOutfitUpload}
-            date={new Date()}
-            onClose={() => setShowOutfitUpload(false)}
-            onUploaded={() => {
-              setShowOutfitUpload(false);
-              setCalendarKey((k) => k + 1);
-              recordActivity(); // Record streak!
-            }}
+          <StreakWidget
+            currentStreak={streak.currentStreak}
+            longestStreak={streak.longestStreak}
+            recentDays={streak.recentDays}
+            todayDone={streak.todayDone}
           />
-        </>
-      )}
+        </div>
 
-      {tab === 'closet' && (
-        <ClosetTab wardrobeItems={wardrobeItems} onRefresh={fetchWardrobe} />
-      )}
+        {/* Right column: tabs + content */}
+        <div className="md:flex-1 md:min-w-0">
+          <ProfileTabs activeTab={tab} onChangeTab={setTab} />
 
-      {tab === 'saved' && (
-        <BoardsTab
-          boards={boards}
-          onSelectBoard={setSelectedBoard}
-          onCreateBoard={createBoard}
-        />
-      )}
+          {tab === 'created' && (
+            <>
+              <CreatedTab
+                key={calendarKey}
+                onAddOutfit={() => setShowOutfitUpload(true)}
+              />
+              <UploadOutfitModal
+                open={showOutfitUpload}
+                date={new Date()}
+                onClose={() => setShowOutfitUpload(false)}
+                onUploaded={() => {
+                  setShowOutfitUpload(false);
+                  setCalendarKey((k) => k + 1);
+                  recordActivity();
+                }}
+              />
+            </>
+          )}
+
+          {tab === 'closet' && (
+            <ClosetTab wardrobeItems={wardrobeItems} onRefresh={fetchWardrobe} />
+          )}
+
+          {tab === 'saved' && (
+            <BoardsTab
+              boards={boards}
+              onSelectBoard={setSelectedBoard}
+              onCreateBoard={createBoard}
+            />
+          )}
+        </div>
+      </div>
 
       {/* Profile Modals */}
       <EditProfileModal

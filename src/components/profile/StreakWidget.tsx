@@ -14,7 +14,7 @@ const StreakWidget = ({ currentStreak, longestStreak, recentDays, todayDone }: S
   const today = new Date();
 
   return (
-    <div className="mx-4 mb-4 rounded-2xl border border-border bg-secondary/40 p-4">
+    <div className="mx-4 md:mx-0 mb-4 rounded-2xl border border-border bg-secondary/40 p-4">
       {/* Top row: flame + streak count */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">

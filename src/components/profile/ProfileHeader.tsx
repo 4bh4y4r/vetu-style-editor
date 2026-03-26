@@ -28,11 +28,11 @@ const ProfileHeader = ({
   return (
     <>
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 pt-5 mb-4">
+      <div className="flex items-center justify-between px-4 pt-5 mb-4 lg:pt-0 lg:px-0 lg:mb-6">
         <h1 className="text-lg font-display font-bold text-foreground">@{displayName}</h1>
         <button
           onClick={onOpenSettings}
-          className="text-muted-foreground hover:text-foreground transition"
+          className="text-muted-foreground hover:text-foreground transition lg:hidden"
           aria-label="Settings"
         >
           <Settings size={20} />
@@ -48,7 +48,7 @@ const ProfileHeader = ({
               `https://ui-avatars.com/api/?name=${displayName}&background=F5E6F0&color=D4648A`
             }
             alt="Profile avatar"
-            className="w-20 h-20 rounded-full object-cover border-2 border-primary/30 shadow-sm"
+            className="w-20 h-20 md:w-28 md:h-28 rounded-full object-cover border-2 border-primary/30 shadow-sm"
           />
           <button
             onClick={onEditProfile}
@@ -86,7 +86,7 @@ const ProfileHeader = ({
               {profile?.bio || 'Fashion lover ✨'}
             </p>
           </div>
-          <button 
+          <button
             onClick={onEditProfile}
             className="px-3 py-1.5 rounded-full border border-border text-xs font-semibold hover:bg-secondary transition flex items-center gap-1.5"
           >

@@ -61,7 +61,7 @@ const AIStylistPage = () => {
   };
 
   return (
-    <div className="pb-16 h-screen flex flex-col">
+    <div className="pb-16 h-[100dvh] flex flex-col max-w-2xl mx-auto">
       {/* Minimal top bar */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
         <button

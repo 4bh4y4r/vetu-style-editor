@@ -96,94 +96,107 @@ const OutfitDetailPage = () => {
   }
 
   return (
-    <div ref={scrollRef} className="pb-20 bg-background min-h-screen">
+    <div ref={scrollRef} className="pb-20 lg:pb-4 bg-background min-h-screen">
       {/* ─── Back button (floating) ───────────────────────────── */}
       <button
         onClick={() => navigate(-1)}
-        className="fixed top-4 left-4 z-50 w-10 h-10 rounded-full bg-background/80 backdrop-blur-md border border-border shadow-lg flex items-center justify-center text-foreground hover:bg-background transition"
+        className="fixed top-4 left-4 z-50 w-10 h-10 rounded-full bg-background/80 backdrop-blur-md border border-border shadow-lg flex items-center justify-center text-foreground hover:bg-background transition lg:left-20"
       >
         <ArrowLeft size={20} />
       </button>
 
-      {/* ─── Main image ───────────────────────────────────────── */}
-      <div className="w-full max-w-lg mx-auto">
-        <div className="w-full overflow-hidden rounded-b-3xl">
-          <img
-            src={card.imageUrl}
-            alt={`Outfit by ${card.username}`}
-            className="w-full object-cover max-h-[70vh]"
-          />
+      <div className="max-w-screen-xl mx-auto lg:flex lg:gap-8 lg:px-6 lg:pt-16">
+        {/* ─── Main image ───────────────────────────────────────── */}
+        <div className="lg:flex-1">
+          <div className="w-full overflow-hidden lg:rounded-3xl">
+            <img
+              src={card.imageUrl}
+              alt={`Outfit by ${card.username}`}
+              className="w-full object-cover max-h-[70vh] lg:max-h-screen lg:rounded-3xl"
+            />
+          </div>
         </div>
 
-        {/* ─── Actions bar ──────────────────────────────────────── */}
-        <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        {/* ─── Right panel (actions + user + more like this) ────── */}
+        <div className="lg:w-80 lg:flex-shrink-0">
+          {/* ─── Actions bar ──────────────────────────────────────── */}
+          <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setLiked(!liked)}
+                className="p-2 rounded-full hover:bg-secondary transition"
+              >
+                <Heart
+                  size={24}
+                  className={liked ? 'fill-primary text-primary' : 'text-foreground'}
+                />
+              </button>
+              <button className="p-2 rounded-full hover:bg-secondary transition">
+                <Share2 size={22} className="text-foreground" />
+              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="p-2 rounded-full hover:bg-secondary transition">
+                    <MoreHorizontal size={22} className="text-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-card/95 backdrop-blur-md">
+                  <DropdownMenuItem onClick={() => toast.success('Image downloaded')}>
+                    Download
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => toast.success('Followed ' + card.username)}>
+                    Follow Creator
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => toast.success('Post reported')} className="text-destructive focus:text-destructive">
+                    Report
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             <button
-              onClick={() => setLiked(!liked)}
-              className="p-2 rounded-full hover:bg-secondary transition"
+              onClick={() => setShowSave(true)}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-body font-semibold text-sm hover:opacity-90 transition shadow-sm"
             >
-              <Heart
-                size={24}
-                className={liked ? 'fill-primary text-primary' : 'text-foreground'}
-              />
+              <Bookmark size={16} />
+              Save
             </button>
-            <button className="p-2 rounded-full hover:bg-secondary transition">
-              <Share2 size={22} className="text-foreground" />
-            </button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="p-2 rounded-full hover:bg-secondary transition">
-                  <MoreHorizontal size={22} className="text-foreground" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-card/95 backdrop-blur-md">
-                <DropdownMenuItem onClick={() => toast.success('Image downloaded')}>
-                  Download
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => toast.success('Followed ' + card.username)}>
-                  Follow Creator
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => toast.success('Post reported')} className="text-destructive focus:text-destructive">
-                  Report
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
-          <button
-            onClick={() => setShowSave(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-body font-semibold text-sm hover:opacity-90 transition shadow-sm"
+
+          {/* ─── User info ────────────────────────────────────────── */}
+          <button 
+            onClick={() => navigate(`/user/${card.username}`)}
+            className="w-full px-4 pb-4 flex items-center gap-3 text-left hover:opacity-80 transition cursor-pointer"
           >
-            <Bookmark size={16} />
-            Save
+            <img
+              src={card.avatarUrl}
+              alt={card.username}
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20"
+            />
+            <div>
+              <p className="text-sm font-body font-semibold text-foreground">{card.username}</p>
+              <p className="text-xs font-body text-muted-foreground">{card.category}</p>
+            </div>
           </button>
-        </div>
 
-        {/* ─── User info ────────────────────────────────────────── */}
-        <button 
-          onClick={() => navigate(`/user/${card.username}`)}
-          className="w-full px-4 pb-4 flex items-center gap-3 text-left hover:opacity-80 transition cursor-pointer"
-        >
-          <img
-            src={card.avatarUrl}
-            alt={card.username}
-            className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20"
-          />
-          <div>
-            <p className="text-sm font-body font-semibold text-foreground">{card.username}</p>
-            <p className="text-xs font-body text-muted-foreground">{card.category}</p>
+          {/* ─── Divider ──────────────────────────────────────────── */}
+          <div className="mx-4 border-t border-border" />
+
+          {/* ─── More like this ───────────────────────────────────── */}
+          <div className="pt-4 lg:hidden">
+            <h3 className="text-base font-display font-bold text-foreground px-4 mb-3">
+              More like this
+            </h3>
+            <MasonryGrid cards={similarCards} />
           </div>
-        </button>
-
-        {/* ─── Divider ──────────────────────────────────────────── */}
-        <div className="mx-4 border-t border-border" />
-
-        {/* ─── More like this ───────────────────────────────────── */}
-        <div className="pt-4">
-          <h3 className="text-base font-display font-bold text-foreground px-4 mb-3">
-            More like this
-          </h3>
-          <MasonryGrid cards={similarCards} />
         </div>
+      </div>
+
+      {/* More like this — desktop: below both columns */}
+      <div className="hidden lg:block max-w-screen-xl mx-auto px-6 pt-8">
+        <h3 className="text-base font-display font-bold text-foreground mb-3">
+          More like this
+        </h3>
+        <MasonryGrid cards={similarCards} />
       </div>
 
       {/* ─── Save modal ─────────────────────────────────────────── */}
