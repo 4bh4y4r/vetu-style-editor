@@ -85,9 +85,9 @@ const ProfilePage = () => {
   // ─── Main profile view ─────────────────────────────────────
   return (
     <div className="pb-20 lg:pb-12 max-w-screen-xl lg:mx-0">
-      <div className="md:flex md:gap-8 lg:gap-12 md:px-6 lg:px-12 md:pt-6 lg:pt-6">
+      <div className="lg:flex lg:gap-12 px-0 md:px-4 lg:px-12 pt-0 lg:pt-6">
         {/* Left column: profile info + streak */}
-        <div className="md:w-64 md:flex-shrink-0">
+        <div className="lg:w-64 lg:flex-shrink-0">
           <ProfileHeader
             profile={profile}
             displayName={displayName}
@@ -108,7 +108,7 @@ const ProfilePage = () => {
         </div>
 
         {/* Right column: tabs + content */}
-        <div className="md:flex-1 md:min-w-0">
+        <div className="lg:flex-1 lg:min-w-0">
           <ProfileTabs activeTab={tab} onChangeTab={setTab} />
 
           {tab === 'created' && (
