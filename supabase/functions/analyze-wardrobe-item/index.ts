@@ -15,9 +15,13 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are an expert fashion cataloger. Look at the clothing image provided and reply with a single, highly descriptive name combining its exact color, material, pattern, and garment type (e.g., 'Distressed Light Wash Denim Jeans', 'Emerald Green Cable-Knit Sweater', 'White Striped Linen Button-Down'). 
+    const systemPrompt = `You are an expert fashion cataloger. Look at the clothing image provided and reply with a single, highly descriptive name combining its exact color, material, pattern, and garment type (e.g., 'Blue & White Short-Sleeve Cuban Collar Shirt', 'Caramel Brown Oxford Button-Down', 'Distressed Light Wash Denim Jeans'). 
     
-    CRITICAL RULE: Reply strictly with the descriptive name only. Do not add any conversational text, quotes, or markdown.`;
+    CRITICAL RULES:
+    1. Sleeve Length: Pay extreme attention to sleeve length! If sleeves end at or above the elbow, you MUST describe it as 'Short-Sleeve' or 'Half-Sleeve'. Never classify short-sleeve garments as long-sleeve!
+    2. Garment Style: Identify exact collar & cut (e.g., Cuban Collar, Camp Collar, Resort Shirt, Oxford, Polo, Kurta, Chinos).
+    3. Pattern & Color: Identify primary colors and patterns accurately (e.g. Printed, Patterned, Paisley, Floral, Plaid, Solid).
+    4. Reply strictly with the descriptive name only. Do not add any conversational text, quotes, or markdown.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -26,7 +30,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview", // Vision capable
+        model: "google/gemini-2.5-flash", // Vision capable
         messages: [
           { role: "system", content: systemPrompt },
           { 
